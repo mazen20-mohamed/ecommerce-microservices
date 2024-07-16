@@ -32,7 +32,7 @@ public class UserService {
     }
 
     public boolean loginUser(LoginRequest loginRequest){
-        Optional<User> user = userRepository.findByEmail(loginRequest.getEmail(),loginRequest.getPassword());
+        Optional<User> user = userRepository.findByEmailAndPassword(loginRequest.getEmail(),loginRequest.getPassword());
         return user.isPresent();
     }
 

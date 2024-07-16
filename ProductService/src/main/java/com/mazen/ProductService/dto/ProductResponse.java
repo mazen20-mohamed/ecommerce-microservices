@@ -16,5 +16,4 @@ public class ProductResponse {
     private double price;
     private int discount;
     private String imageUrl;
-    private boolean isLoved;
 }

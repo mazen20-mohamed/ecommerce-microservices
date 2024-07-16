@@ -29,7 +29,7 @@ public class ExceptionHandlerAdvice {
         );
     }
 
-    @ExceptionHandler({NullPointerException.class, Exception.class,ServerErrorException.class})
+    @ExceptionHandler({NullPointerException.class, Exception.class, ServerErrorException.class})
     public ResponseEntity<ErrorResponse> handleInternalServerError(Exception e){
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;// 500
 

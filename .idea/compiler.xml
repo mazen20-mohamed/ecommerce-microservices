@@ -8,17 +8,21 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="config-server" />
-        <module name="FileStorage" />
-        <module name="eurka-discovery-server" />
         <module name="UserService" />
         <module name="ProductService" />
         <module name="auth-server" />
+        <module name="FileStorage" />
+        <module name="eurka-discovery-server" />
+        <module name="Cart-And-WishList-Service" />
+        <module name="OrderService" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Cart-And-WishList-Service" options="-parameters" />
       <module name="FileStorage" options="-parameters" />
+      <module name="OrderService" options="-parameters" />
       <module name="ProductService" options="-parameters" />
       <module name="UserService" options="-parameters" />
       <module name="auth-server" options="-parameters" />

@@ -24,4 +24,6 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable String id){
         return ResponseEntity.ok(userService.getUserById(id));
     }
+
+
 }
