@@ -18,11 +18,14 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(userRequestDTO));
     }
 
-
-
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable String id){
         return ResponseEntity.ok(userService.getUserById(id));
+    }
+
+    @GetMapping("/check/{id}")
+    public boolean checkUser(@PathVariable String id){
+        return userService.checkUser(id);
     }
 
 

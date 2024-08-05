@@ -41,5 +41,10 @@ public class UserService {
         return  modelMapper.map(user,UserResponseDTO.class);
     }
 
+    public boolean checkUser(String id){
+        Optional<User> user = userRepository.findById(id);
+        return user.isPresent();
+    }
+
 
 }

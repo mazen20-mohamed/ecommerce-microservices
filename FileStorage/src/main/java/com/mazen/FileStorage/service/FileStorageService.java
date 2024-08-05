@@ -10,8 +10,11 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -74,8 +77,25 @@ public class FileStorageService {
         }
     }
 
-    public boolean deletePhotosOfProduct(String id) throws IOException {
+    public boolean deletePhotosOfProduct(String id){
         Path p = Paths.get(IMAGES_PATH+id);
-        return Files.deleteIfExists(p);
+        try{
+            deleteDirectoryRecursively(p);
+            log.info("Deleted images");
+        }
+        catch (Exception e){
+            log.error("Failed to delete images");
+        }
+        return true;
+    }
+    public static void deleteDirectoryRecursively(Path path) throws IOException {
+        if (Files.isDirectory(path)) {
+            try (DirectoryStream<Path> entries = Files.newDirectoryStream(path)) {
+                for (Path entry : entries) {
+                    deleteDirectoryRecursively(entry);
+                }
+            }
+        }
+        Files.delete(path);
     }
 }

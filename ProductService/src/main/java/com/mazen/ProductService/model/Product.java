@@ -4,6 +4,7 @@ package com.mazen.ProductService.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
@@ -28,11 +29,12 @@ public class Product extends DateEntity {
     @CollectionTable(name = "images_product",
             joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "images_url")
-    private List<String> imagesPaths;
+    private List<String> imagesPaths = new ArrayList<>();
 
     @Enumerated(value = EnumType.STRING)
     private ProductCategory productCategory;
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<ProductSize> productSizes;
+    private List<ProductColor> productColors = new ArrayList<>();
+
 }

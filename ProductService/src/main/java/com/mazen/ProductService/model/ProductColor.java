@@ -2,6 +2,7 @@ package com.mazen.ProductService.model;
 
 
 import com.mazen.ProductService.util.Colors;
+import com.mazen.ProductService.util.Size;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,10 @@ public class ProductColor {
 
     private int numberInStock;
 
+    private Size size;
+
     @ManyToOne(optional = false)
-    @JoinColumn(name = "product_size_id",referencedColumnName = "id",nullable = false)
-    private ProductSize productSize;
+    @JoinColumn(name = "product_id",referencedColumnName = "id",nullable = false)
+    private Product product;
+
 }

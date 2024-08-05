@@ -1,0 +1,25 @@
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: auth_server
+          uri: lb:http://AUTH_SERVER
+          predicates:
+            - Path=/v1/auth/**
+        - id: Cart-Service
+          uri: lb:http://CART-AND-WISHLIST-SERVICE
+          predicates:
+            - Path=/v1/cart/**
+          filters:
+                - AuthenticationFilter
+        - id: WishList-Service
+          uri: lb:http://CART-AND-WISHLIST-SERVICE
+          predicates:
+            - Path=/v1/wishlist/**
+          filters:
+            - AuthenticationFilter
+server:
+  port: 8222

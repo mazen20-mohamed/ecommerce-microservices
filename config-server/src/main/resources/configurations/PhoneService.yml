@@ -1,0 +1,6 @@
+nexmo:
+  api-key: 85930dc9
+  api-secret: VF70gnzQ6syzjiqt
+  from-number: Exclusive
+server:
+  port: 8555
