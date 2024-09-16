@@ -51,12 +51,4 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    /******************* check token is valid ******************/
-    public boolean isExpired(String token) {
-        try {
-            return extractAllClaims(token).getExpiration().before(new Date());
-        } catch (Exception e) {
-            return false;
-        }
-    }
 }

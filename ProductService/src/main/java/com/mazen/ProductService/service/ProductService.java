@@ -1,17 +1,20 @@
 package com.mazen.ProductService.service;
 
 import com.mazen.ProductService.dto.ProductDetailsResponse;
-import com.mazen.ProductService.dto.request.ProductRequest;
 import com.mazen.ProductService.dto.ProductResponse;
+import com.mazen.ProductService.dto.request.post.ProductRequest;
+import com.mazen.ProductService.dto.request.update.ProductSpecsUpdate;
+import com.mazen.ProductService.dto.request.update.ProductUpdate;
+import com.mazen.ProductService.exceptions.BadRequestException;
 import com.mazen.ProductService.exceptions.NotFoundException;
 import com.mazen.ProductService.model.Product;
 import com.mazen.ProductService.model.ProductCategory;
-import com.mazen.ProductService.model.ProductColor;
-import com.mazen.ProductService.repository.ProductColorRepository;
+import com.mazen.ProductService.model.ProductImage;
+import com.mazen.ProductService.model.ProductSpecs;
+import com.mazen.ProductService.repository.ProductImageRepository;
+import com.mazen.ProductService.repository.ProductSpecsRepository;
 import com.mazen.ProductService.repository.ProductRepository;
-import com.mazen.ProductService.util.Colors;
 import com.mazen.ProductService.util.PagedResponse;
-import com.mazen.ProductService.util.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -21,7 +24,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,29 +37,38 @@ import java.util.stream.Collectors;
 public class ProductService {
     private final ProductRepository productRepository;
     private final MappingService mappingService;
-    private final ProductColorRepository productColorRepository;
+    private final ProductSpecsRepository productSpecsRepository;
     private final RestTemplateService restTemplateService;
     private final ModelMapper modelMapper;
 
-
     @Transactional
-    public void createProduct(ProductRequest productRequest) throws IOException {
-        Product product = modelMapper.map(productRequest,Product.class);
+    public void createProduct(ProductRequest productRequest) {
+        Product product = Product.builder()
+                .title(productRequest.getTitle())
+                .price(productRequest.getPrice())
+                .productCategory(productRequest.getProductCategory())
+                .build();
 
-        Product savedProduct = productRepository.save(product);
-        List<ProductColor> productColors = productRequest
-                .getProductColorRequests()
+        List<ProductSpecs> productSpecs = productRequest
+                .getProductSpecsRequests()
                 .stream()
-                .map(productColorRequest -> mappingService
-                        .convertToProductColor(productColorRequest, savedProduct))
-                .collect(Collectors.toList());
+                .map(productSpecsRequest -> mappingService
+                        .convertToProductSpecs(productSpecsRequest,product))
+                .toList();
+        product.setProductSpecs(productSpecs);
 
-        savedProduct.setProductColors(productColors);
-        List<MultipartFile> files = productRequest.getImages();
-        List<String> imagesPaths = restTemplateService.saveImagesRequest(files, savedProduct);
-        savedProduct.setImagesPaths(imagesPaths);
+        Product product1 = productRepository.save(product);
 
-        productRepository.save(savedProduct);
+        productRequest
+                .getProductImageRequests().forEach(productImageRequest -> {
+                    try {
+                        mappingService.
+                        convertToProductImage(productImageRequest,product1);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
     }
 
     @Transactional
@@ -66,25 +77,77 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+
     public Product getProductByIdOptional(String id){
         return productRepository.findById(id).orElseThrow(()->
                 new NotFoundException("Product not found with id "+id));
     }
 
     @Transactional
-    public void updateProduct(String id,ProductRequest productRequest) throws IOException {
+    public void updateProduct(String id, ProductUpdate productUpdateRequest){
+
         Product product = getProductByIdOptional(id);
-        modelMapper.map(productRequest,product);
 
-        product.setImagesPaths(restTemplateService.saveImagesRequest(productRequest.getImages(),product));
-        List<ProductColor> productColors = productRequest
-                .getProductColorRequests()
-                .stream()
-                .map(productColorRequest -> mappingService
-                        .convertToProductColor(productColorRequest, product))
-                .collect(Collectors.toList());
+        modelMapper.map(product,productUpdateRequest);
 
-        product.setProductColors(productColors);
+        List<ProductSpecs> productSpecsList = product.getProductSpecs();
+
+        List<ProductSpecs> productSpecs = productUpdateRequest.getProductSpecsUpdates().stream().map(
+                productSpecsUpdate ->{
+                    Optional<ProductSpecs> productSpecs1 =
+                    productSpecsRepository.findByColorAndSize(productSpecsUpdate.getColors(),
+                            product,productSpecsUpdate.getSize());
+                    if(productSpecs1.isEmpty()){
+                        return ProductSpecs.builder()
+                                .product(product)
+                                .size(productSpecsUpdate.getSize())
+                                .numberInStock(productSpecsUpdate.getNumberInStock())
+                                .colors(productSpecsUpdate.getColors())
+                                .build();
+                    }
+                    productSpecsList.remove(productSpecs1.get());
+                    productSpecs1.get().setNumberInStock(productSpecsUpdate.getNumberInStock());
+                    return productSpecs1.get();
+        }).toList();
+
+        for(ProductSpecs productSpecs1 : productSpecsList){
+            productSpecsRepository.delete(productSpecs1);
+        }
+
+        product.setProductSpecs(productSpecs);
+
+        product.getProductImages().clear();
+
+        List<ProductImage> productImages = productUpdateRequest.getProductImageUpdates().stream().map(
+                productImageUpdate -> {
+                    List<String> allImages = new ArrayList<>();
+                    if((productImageUpdate.getImagesUrl()==null || productImageUpdate.getImagesUrl().isEmpty())
+                    && (productImageUpdate.getImages() == null || productImageUpdate.getImages().isEmpty())){
+                        throw new BadRequestException("There is no images with request");
+                    }
+                    if(!(productImageUpdate.getImagesUrl()==null || productImageUpdate.getImagesUrl().isEmpty())){
+                        List<String> images = productImageUpdate.getImagesUrl();
+                        allImages.addAll(images);
+                    }
+
+                    try {
+                        if(!(productImageUpdate.getImages() == null || productImageUpdate.getImages().isEmpty())){
+                            List<String> imageRequests = restTemplateService.updateImagesRequest(
+                                    productImageUpdate.getImages(),product,productImageUpdate.getColors());
+                            allImages.addAll(imageRequests);
+                        }
+
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return ProductImage.builder()
+                            .colors(productImageUpdate.getColors())
+                            .product(product)
+                            .imagesPaths(allImages)
+                            .build();
+                }).toList();
+
+        product.setProductImages(productImages);
 
         productRepository.save(product);
     }
@@ -108,55 +171,55 @@ public class ProductService {
         return products.stream().map(mappingService::createProductResponse).toList();
     }
 
-    @Transactional
-    public void changeItemInventory(String productId, Size size, Colors color, int numberOfItems){
-        Product product = getProductByIdOptional(productId);
-        Optional<ProductColor> productColor =
-                productColorRepository.findByProductSizeAndColor(size,color,product);
-        if(productColor.isPresent()){
-            productColor.get().setNumberInStock(numberOfItems);
-            productColorRepository.save(productColor.get());
-            return;
-        }
-        Optional<ProductColor> productColor1 =
-                productColorRepository.findByProductByColor(color,product);
-        if(productColor1.isPresent()){
-            productColor1.get().setSize(size);
-            productColor1.get().setColors(color);
-            productColorRepository.save(productColor1.get());
-            return;
-        }
-        ProductColor productColor2 = ProductColor.builder()
-                .colors(color)
-                .size(size)
-                .product(product)
-                .numberInStock(numberOfItems)
-                .build();
-
-        product.getProductColors().add(productColor2);
-        productRepository.save(product);
-    }
-
-    @Transactional
-    public void changeItemInventoryOnlyColor(String productId, Colors color, int numberOfItems){
-        Product product = getProductByIdOptional(productId);
-
-        Optional<ProductColor> productColor1 =
-                productColorRepository.findByProductByColor(color,product);
-        if(productColor1.isPresent()){
-            productColor1.get().setColors(color);
-            productColorRepository.save(productColor1.get());
-            return;
-        }
-        ProductColor productColor2 = ProductColor.builder()
-                .colors(color)
-                .product(product)
-                .numberInStock(numberOfItems)
-                .build();
-
-        product.getProductColors().add(productColor2);
-        productRepository.save(product);
-    }
+//    @Transactional
+//    public void changeItemInventory(String productId, Size size, Colors color, int numberOfItems){
+//        Product product = getProductByIdOptional(productId);
+//        Optional<ProductColor> productColor =
+//                productColorRepository.findByProductSizeAndColor(size,color,product);
+//        if(productColor.isPresent()){
+//            productColor.get().setNumberInStock(numberOfItems);
+//            productColorRepository.save(productColor.get());
+//            return;
+//        }
+//        Optional<ProductColor> productColor1 =
+//                productColorRepository.findByProductByColor(color,product);
+//        if(productColor1.isPresent()){
+//            productColor1.get().setSize(size);
+//            productColor1.get().setColors(color);
+//            productColorRepository.save(productColor1.get());
+//            return;
+//        }
+//        ProductColor productColor2 = ProductColor.builder()
+//                .colors(color)
+//                .size(size)
+//                .product(product)
+//                .numberInStock(numberOfItems)
+//                .build();
+//
+//        product.getProductColors().add(productColor2);
+//        productRepository.save(product);
+//    }
+//
+//    @Transactional
+//    public void changeItemInventoryOnlyColor(String productId, Colors color, int numberOfItems){
+//        Product product = getProductByIdOptional(productId);
+//
+//        Optional<ProductColor> productColor1 =
+//                productColorRepository.findByProductByColor(color,product);
+//        if(productColor1.isPresent()){
+//            productColor1.get().setColors(color);
+//            productColorRepository.save(productColor1.get());
+//            return;
+//        }
+//        ProductColor productColor2 = ProductColor.builder()
+//                .colors(color)
+//                .product(product)
+//                .numberInStock(numberOfItems)
+//                .build();
+//
+//        product.getProductColors().add(productColor2);
+//        productRepository.save(product);
+//    }
     public boolean isProductExist(String product_id){
         Optional<Product> product = productRepository.findById(product_id);
         return product.isPresent();
@@ -197,6 +260,18 @@ public class ProductService {
         return new PagedResponse<>(productResponses,
                 page,size,products.getTotalElements(),
                 products.getTotalPages(),products.isLast());
+    }
+
+
+    public double getPriceOfAllProducts(List<String> ids){
+        double sum = 0.0;
+         for(String id : ids){
+            Product product = getProductByIdOptional(id);
+            int discount =  restTemplateService.getDiscountOfProduct(id);
+            double price =  product.getPrice();
+            sum+= (price - (price*discount/100.0));
+         }
+         return sum;
     }
 
 }

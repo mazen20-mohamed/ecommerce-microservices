@@ -34,5 +34,5 @@ public class Order extends DateEntity {
     private PaymentType paymentType;
 
     @Enumerated(value = EnumType.STRING)
-    private Status status;
+    private OrderStatus status;
 }

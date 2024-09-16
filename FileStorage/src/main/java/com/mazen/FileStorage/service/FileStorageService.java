@@ -28,9 +28,11 @@ import java.util.Objects;
 public class FileStorageService {
     public static String IMAGES_PATH = System.getProperty("user.dir") + "/FileStorage/public/images/";
 
-    public List<String> addPhotosForProduct(List<MultipartFile> files,String id) throws IOException {
+    public List<String> addPhotosForProduct(List<MultipartFile> files,
+                                            String id,
+                                            Colors colors) throws IOException {
         List<String> images = new ArrayList<>();
-        Path directoryPath  = Paths.get(IMAGES_PATH+id);
+        Path directoryPath  = Paths.get(IMAGES_PATH+id+"/"+colors.toString());
         // Ensure the directory is created
         if (!Files.exists(directoryPath)) {
             try {
@@ -45,21 +47,22 @@ public class FileStorageService {
 
             String fileDownloadUri = ServletUriComponentsBuilder
                     .fromCurrentContextPath()
-                    .path("v1/file/"+id+"/")
+                    .path("v1/file/"+id+"/"+colors+"/")
                     .path(Objects.requireNonNull(f.getOriginalFilename()))
                     .toUriString();
             images.add(fileDownloadUri);
 
-            Path fileNameAndPath = Paths.get(IMAGES_PATH+id, f.getOriginalFilename());
+            Path fileNameAndPath = Paths.get(IMAGES_PATH+id+"/"+colors,
+                    f.getOriginalFilename());
             Files.write(fileNameAndPath, f.getBytes());
         }
         return images;
     }
 
 
-    public Resource getPhoto(String fileName,String id){
+    public Resource getPhoto(String fileName,String id,Colors colors){
         try {
-            String path = IMAGES_PATH+id+"/";
+            String path = IMAGES_PATH+id+"/"+colors+"/";
             Path filePath;
 
             filePath = Paths.get(path);
@@ -97,5 +100,11 @@ public class FileStorageService {
             }
         }
         Files.delete(path);
+    }
+
+    public List<String> updatePhotos(List<MultipartFile> files,
+                                     String id,Colors colors) throws IOException {
+        deletePhotosOfProduct(id);
+        return addPhotosForProduct(files,id,colors);
     }
 }

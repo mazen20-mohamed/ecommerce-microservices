@@ -2,14 +2,12 @@ package com.mazen.OrderService.service;
 
 
 import com.mazen.OrderService.dto.CancelOrderResponse;
-import com.mazen.OrderService.dto.OrderResponse;
 import com.mazen.OrderService.exceptions.BadRequestException;
 import com.mazen.OrderService.exceptions.NotFoundException;
 import com.mazen.OrderService.model.BillingDetails;
 import com.mazen.OrderService.model.ProductItem;
-import com.mazen.OrderService.model.Status;
+import com.mazen.OrderService.model.OrderStatus;
 import com.mazen.OrderService.model.order.CanceledOrder;
-import com.mazen.OrderService.model.order.FinishedOrder;
 import com.mazen.OrderService.model.order.Order;
 import com.mazen.OrderService.repository.CancelledOrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +29,7 @@ public class CancelledOrderService {
 
     public void changeOrderToCancel(String orderId,String reason){
         Order order = orderService.getOrderByIdWithCheck(orderId);
-        if(!order.getStatus().equals(Status.Packing)){
+        if(!order.getStatus().equals(OrderStatus.Packing)){
             throw new BadRequestException("Cannot cancel order request is being shipped, please call us...");
         }
 

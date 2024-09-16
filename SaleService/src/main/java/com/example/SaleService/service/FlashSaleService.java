@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -65,7 +66,7 @@ public class FlashSaleService {
     }
 
     public PagedResponse<FlashSaleResponse> getAllFlashSales(int page, int size){
-        Pageable pageable = PageRequest.of(page,size);
+        Pageable pageable = PageRequest.of(page,size, Sort.by("createdAt").descending());
         Page<FlashSale> flashSales = flashSaleRepository.findAll(pageable);
         List<FlashSaleResponse> flashSaleResponses =
                 flashSales.stream().map(this::mapFlashSale).toList();

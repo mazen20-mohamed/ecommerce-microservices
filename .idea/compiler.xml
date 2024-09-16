@@ -7,15 +7,16 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="config-server" />
         <module name="UserService" />
         <module name="SaleService" />
-        <module name="ProductService" />
         <module name="auth-server" />
+        <module name="NotificationService" />
+        <module name="Cart-And-WishList-Service" />
+        <module name="config-server" />
+        <module name="ProductService" />
         <module name="PhoneService" />
         <module name="FileStorage" />
         <module name="eurka-discovery-server" />
-        <module name="Cart-And-WishList-Service" />
         <module name="OrderService" />
         <module name="ReviewService" />
         <module name="gateway" />
@@ -26,6 +27,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Cart-And-WishList-Service" options="-parameters" />
       <module name="FileStorage" options="-parameters" />
+      <module name="NotificationService" options="-parameters" />
       <module name="OrderService" options="-parameters" />
       <module name="PhoneService" options="-parameters" />
       <module name="ProductService" options="-parameters" />

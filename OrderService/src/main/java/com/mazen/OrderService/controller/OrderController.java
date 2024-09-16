@@ -3,7 +3,7 @@ package com.mazen.OrderService.controller;
 import com.mazen.OrderService.dto.OrderRequest;
 import com.mazen.OrderService.dto.OrderResponse;
 import com.mazen.OrderService.dto.PagedResponse;
-import com.mazen.OrderService.model.Status;
+import com.mazen.OrderService.model.OrderStatus;
 import com.mazen.OrderService.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,8 @@ public class OrderController {
     }
 
     @PatchMapping("/{orderId}")
-    public void changeStatusOfOrder(@RequestParam Status status ,@PathVariable String orderId){
+        public void changeStatusOfOrder(@RequestParam OrderStatus status
+            ,@PathVariable String orderId){
         orderService.changeStatusOfOrder(status,orderId);
     }
 
@@ -50,7 +51,7 @@ public class OrderController {
     }
 
     @GetMapping("/all/{page}/{size}/{status}")
-    public PagedResponse<OrderResponse> getAllOrderByStatus(@PathVariable int page,@PathVariable int size,@PathVariable Status status){
+    public PagedResponse<OrderResponse> getAllOrderByStatus(@PathVariable int page,@PathVariable int size,@PathVariable OrderStatus status){
         return orderService.getAllOrderByStatus(page,size,status);
     }
 }

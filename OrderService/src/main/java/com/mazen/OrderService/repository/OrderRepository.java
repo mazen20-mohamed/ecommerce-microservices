@@ -1,6 +1,6 @@
 package com.mazen.OrderService.repository;
 
-import com.mazen.OrderService.model.Status;
+import com.mazen.OrderService.model.OrderStatus;
 import com.mazen.OrderService.model.order.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,5 +20,5 @@ public interface OrderRepository extends JpaRepository<Order,String> {
 
 
     @Query("Select o from Order o Where o.status = :status")
-    Page<Order> findAllByStatus(Pageable pageable, Status status);
+    Page<Order> findAllByStatus(Pageable pageable, OrderStatus status);
 }

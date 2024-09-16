@@ -1,10 +1,8 @@
 package com.mazen.OrderService.service;
 
-import com.mazen.OrderService.dto.OrderRequest;
-import com.mazen.OrderService.dto.OrderResponse;
-import com.mazen.OrderService.dto.PagedResponse;
-import com.mazen.OrderService.dto.ProductRequest;
+import com.mazen.OrderService.dto.*;
 import com.mazen.OrderService.exceptions.NotFoundException;
+import com.mazen.OrderService.kafka.OrderProducer;
 import com.mazen.OrderService.model.*;
 import com.mazen.OrderService.model.order.Order;
 import com.mazen.OrderService.repository.OrderRepository;
@@ -28,15 +26,23 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ModelMapper modelMapper;
     private final RestTemplateService restTemplateService;
+    private final OrderProducer orderProducer;
 
     @Transactional
     public void createOrder(OrderRequest orderRequest){
+        // get products id
         List<String> ids = orderRequest.getProductItems().stream()
                 .map(ProductRequest::getProduct_id).toList();
 
+        // check if product is exits
         restTemplateService.isProductIdExits(ids);
 
+        // calculate order price
+        double orderPrice = restTemplateService.calculateOrderPrice(ids);
+
+        // Order Mapping
         Order order = modelMapper.map(orderRequest,Order.class);
+        order.setTotalPrice(orderPrice);
 
         BillingDetails billingDetails = modelMapper.map(orderRequest.getDetailsRequest(), BillingDetails.class);
         order.setBillingDetails(billingDetails);
@@ -48,8 +54,26 @@ public class OrderService {
         List<ProductItem> productItems1 =  productItems.stream().peek(productItem -> productItem.setOrder(order)).toList();
 
         order.setProductItems(productItems1);
-        order.setStatus(Status.Packing);
+        order.setStatus(OrderStatus.Packing);
+
+        // save order
         orderRepository.save(order);
+
+        // send order creation to notification service
+        orderProducer.sendOrderConfirmation(OrderConfirmation.builder()
+                .orderPrice(orderPrice)
+                .orderReference(order.getId())
+                .status(OrderStatus.Packing)
+                .user_id(orderRequest.getUser_id())
+                .detailsShippingResponse(
+                        DetailsShippingResponse
+                                .builder().id(billingDetails.getId())
+                                .city(billingDetails.getCity())
+                                .apartmentNumber(billingDetails.getApartmentNumber())
+                                .phoneNumber(billingDetails.getPhoneNumber())
+                                .government(billingDetails.getGovernment())
+                                .build()
+                ).build());
     }
 
     public Order getOrderByIdWithCheck(String id){
@@ -58,7 +82,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void changeStatusOfOrder(Status status , String orderId){
+    public void changeStatusOfOrder(OrderStatus status , String orderId){
         Order order =  getOrderByIdWithCheck(orderId);
         order.setStatus(status);
         orderRepository.save(order);
@@ -70,9 +94,12 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
+
+    @Transactional
     public OrderResponse returnOrderResponse(Order order){
         OrderResponse orderResponse =  modelMapper.map(order,OrderResponse.class);
-        orderResponse.setProductItemsId(order.getProductItems().stream().map(ProductItem::getId).toList());
+        orderResponse.setProductItemsId(order.getProductItems()
+                .stream().map(ProductItem::getId).toList());
         return orderResponse;
     }
 
@@ -97,7 +124,7 @@ public class OrderService {
                 orders.getTotalPages(),orders.isLast());
     }
 
-    public PagedResponse<OrderResponse> getAllOrderByStatus(int page,int size,Status status){
+    public PagedResponse<OrderResponse> getAllOrderByStatus(int page, int size, OrderStatus status){
         Pageable pageable = PageRequest.of(page,size, Sort.by("createdAt").descending());
         Page<Order> orders = orderRepository.findAllByStatus(pageable,status);
         List<OrderResponse> orderResponses =  orders.stream().map(this::returnOrderResponse).toList();

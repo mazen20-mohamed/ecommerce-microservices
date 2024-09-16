@@ -1,6 +1,7 @@
 package com.mazen.OrderService.service;
 
 import com.mazen.OrderService.dto.OrderResponse;
+import com.mazen.OrderService.dto.PagedResponse;
 import com.mazen.OrderService.exceptions.BadRequestException;
 import com.mazen.OrderService.exceptions.NotFoundException;
 import com.mazen.OrderService.model.*;
@@ -10,6 +11,10 @@ import com.mazen.OrderService.repository.FinishedOrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +33,7 @@ public class FinishedOrderService {
     @Transactional
     public void changeOrderToFinished(String orderId){
         Order order = orderService.getOrderByIdWithCheck(orderId);
-        if(!order.getStatus().equals(Status.Delivery)){
+        if(!order.getStatus().equals(OrderStatus.Delivery)){
             throw new BadRequestException("Order is not even delivered");
         }
 
@@ -68,5 +73,18 @@ public class FinishedOrderService {
         return orders.map(orderList -> orderList.stream().map(order ->
                 getFinishedOrderById(order.getId())).toList()).orElseGet(List::of);
     }
-
+    public OrderResponse returnFinsihedOrderResponse(FinishedOrder order){
+        OrderResponse orderResponse =  modelMapper.map(order,OrderResponse.class);
+        orderResponse.setProductItemsId(order.getProductItems().stream()
+                .map(ProductItem::getId).toList());
+        return orderResponse;
+    }
+    public PagedResponse<OrderResponse> getAllFinishedOrders(int page, int size) {
+        Pageable pageable = PageRequest.of(page,size, Sort.by("createdAt").descending());
+        Page<FinishedOrder> orders = finishedOrderRepository.findAll(pageable);
+        List<OrderResponse> orderResponses =  orders.stream().map(this::returnFinsihedOrderResponse).toList();
+        return new PagedResponse<>(orderResponses,
+                page,size,orders.getTotalElements(),
+                orders.getTotalPages(),orders.isLast());
+    }
 }

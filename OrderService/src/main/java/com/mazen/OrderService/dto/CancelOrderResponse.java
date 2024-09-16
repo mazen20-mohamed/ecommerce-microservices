@@ -1,7 +1,7 @@
 package com.mazen.OrderService.dto;
 
 import com.mazen.OrderService.model.PaymentType;
-import com.mazen.OrderService.model.Status;
+import com.mazen.OrderService.model.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +16,7 @@ import java.util.List;
 public class CancelOrderResponse {
     private String orderId;
     private PaymentType paymentType;
-    private Status status;
+    private OrderStatus status;
     private long detailsId;
     private double totalPrice;
     private List<Long> productItemsId;

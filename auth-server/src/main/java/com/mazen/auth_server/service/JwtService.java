@@ -43,9 +43,10 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateToken(User userDetails, Role role) {
+    public String generateToken(User userDetails) {
         HashMap<String,Object> map = new HashMap<>();
-        map.put("Role",role.toString());
+//        map.put("Role",role.toString());
+        map.put("id",userDetails.getId());
         return buildToken(map, userDetails);
     }
 

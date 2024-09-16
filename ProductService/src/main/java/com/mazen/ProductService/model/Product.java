@@ -21,20 +21,18 @@ public class Product extends DateEntity {
     private String id;
 
     private String title;
+
     private double price;
 
     private String description;
 
-    @ElementCollection
-    @CollectionTable(name = "images_product",
-            joinColumns = @JoinColumn(name = "product_id"))
-    @Column(name = "images_url")
-    private List<String> imagesPaths = new ArrayList<>();
-
     @Enumerated(value = EnumType.STRING)
     private ProductCategory productCategory;
 
-    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<ProductColor> productColors = new ArrayList<>();
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+    private List<ProductSpecs> productSpecs;
+
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+    private List<ProductImage> productImages;
 
 }

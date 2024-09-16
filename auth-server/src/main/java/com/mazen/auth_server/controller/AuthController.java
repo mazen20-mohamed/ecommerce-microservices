@@ -6,7 +6,10 @@ import com.mazen.auth_server.dto.LoginResponse;
 import com.mazen.auth_server.dto.UserRequest;
 import com.mazen.auth_server.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,15 +17,15 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final UserService userService;
 
-    @PostMapping("/register")
+    @PostMapping
     public void addUser(@RequestBody UserRequest userRequest){
-//        userService.createUser(userRequest);
+        userService.createUser(userRequest);
     }
 
-    @PostMapping("/login")
-    public LoginResponse loginUser(@RequestBody LoginRequest loginRequest){
-        return userService.loginUser(loginRequest);
-    }
+//    @PostMapping("/login")
+//    public LoginResponse loginUser(@RequestBody LoginRequest loginRequest){
+//        return userService.loginUser(loginRequest);
+//    }
 
 
 }

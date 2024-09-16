@@ -14,11 +14,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDetailsResponse {
-    private String id;
     private String title;
     private double price;
-    private List<String> imagesUrl;
     private ProductCategory productCategory;
     private String description;
-    private List<ProductColorResponse> productColorResponses;
+    private List<ProductSpecsResponse> productSpecsResponses;
 }

@@ -1,5 +1,6 @@
 package com.mazen.FileStorage.controller;
 
+import com.mazen.FileStorage.service.Colors;
 import com.mazen.FileStorage.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -19,16 +20,18 @@ import java.util.List;
 public class FileStorageController {
     private final FileStorageService fileStorageService;
 
+    @PostMapping("/{id}/{colors}")
+    public ResponseEntity<List<String>> addPhotosToProduct(
+            @ModelAttribute List<MultipartFile> images,
+            @PathVariable String id,
+            @PathVariable Colors colors) throws IOException {
 
-    @PostMapping("/{id}")
-    public ResponseEntity<List<String>> addPhotosToProduct(@ModelAttribute List<MultipartFile> images, @PathVariable String id) throws IOException {
-
-        return ResponseEntity.ok(fileStorageService.addPhotosForProduct(images,id));
+        return ResponseEntity.ok(fileStorageService.addPhotosForProduct(images,id,colors));
     }
 
-    @GetMapping("/{id}/{fileName}")
-    public ResponseEntity<Resource> getPhoto(@PathVariable String id,@PathVariable String fileName) throws IOException {
-        Resource resource = fileStorageService.getPhoto(fileName,id);
+    @GetMapping("/{id}/{colors}/{fileName}")
+    public ResponseEntity<Resource> getPhoto(@PathVariable String id,@PathVariable Colors colors, @PathVariable String fileName) throws IOException {
+        Resource resource = fileStorageService.getPhoto(fileName,id,colors);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);
         headers.setContentLength(resource.contentLength());
@@ -36,8 +39,15 @@ public class FileStorageController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deletePhotos(@PathVariable String id) throws IOException {
+    public ResponseEntity<Boolean> deletePhotos(@PathVariable String id){
         return ResponseEntity.ok(fileStorageService.deletePhotosOfProduct(id));
+    }
+
+    @PutMapping("/{id}/{colors}")
+    public List<String> updatePhotos(@ModelAttribute List<MultipartFile> images,
+                                     @PathVariable String id,
+                                     @PathVariable Colors colors) throws IOException {
+        return fileStorageService.updatePhotos(images, id,colors);
     }
 
 }
