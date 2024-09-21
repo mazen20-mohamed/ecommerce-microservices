@@ -20,12 +20,11 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public AuthenticationFilter(RouteValidator routeValidator,JwtUtil jwtUtil) {
+    public AuthenticationFilter(JwtUtil jwtUtil) {
         super(Config.class);
         this.jwtUtil = jwtUtil;
         log.info("AuthenticationFilter initialized");
     }
-
 
     // apply validation on jwt token...
     @Override

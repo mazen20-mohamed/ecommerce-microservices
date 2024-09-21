@@ -1,10 +1,10 @@
 server:
-  port: 8190
+  port: ${PORT:0}
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/ecommerce_auth
     username: root
-    password: root
+    password: '{cipher}6b94bedefd87c7ca4cbf74844b480f34bf9038050d4206ad1fa12b72790cb6b1'
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -16,5 +16,5 @@ spring:
 application:
   security:
     jwt:
-      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-      expiration: 86400000 # a day
+      secret-key: '{cipher}01d6c848b669e1b6faa621459dd44a8358dba49c7628bd73db7ca9508dee6d3f1c69e26326d84ece2a1ebfaf1f68d45d5ab2dc1509e6e1857515004a62ef5ccf70b86baff98112f5c40476808434e7ec1dc24f08a93150f0ebef0dd2c3fc8f9d'
+      expiration: 8640000 # a day

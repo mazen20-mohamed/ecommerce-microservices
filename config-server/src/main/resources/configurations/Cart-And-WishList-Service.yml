@@ -1,5 +1,5 @@
 server:
-  port: 8400
+  port: ${PORT:0}
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/ecommerce_cart_wishlist

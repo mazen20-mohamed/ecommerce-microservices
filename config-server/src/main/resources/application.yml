@@ -8,5 +8,17 @@ spring:
       server:
         native:
           search-locations: classpath:/configurations
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 server:
   port: 8888
+management:
+  endpoints:
+    web:
+      exposure:
+        include: bus-refresh, refresh, health, info
+encrypt:
+  key: sdf*ws&e^f%w$$68$49w$8$efw9efw#ef98w4ef984wef#
