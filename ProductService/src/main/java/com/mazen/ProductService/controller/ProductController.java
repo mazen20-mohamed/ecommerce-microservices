@@ -37,29 +37,18 @@ public class ProductController {
         productService.updateProduct(id,productRequest);
     }
 
-
-    @GetMapping("/ids")
+    @GetMapping
     public List<ProductResponse> getProductsByIds(@RequestParam List<String> ids){
         return productService.getProductsByIds(ids);
     }
 
-//    @PatchMapping("/{productId}")
-//    public void changeNumberOfItemInventory(String productId,@RequestParam Size size,@RequestParam Colors color,@RequestParam int numberOfItems){
-//        productService.changeItemInventory(productId,size,color,numberOfItems);
-//    }
-//
-//    @PatchMapping("/{productId}/{color}")
-//    public void changeItemInventoryOnlyColor(@PathVariable String productId,@PathVariable Colors color,@RequestParam int numberOfItems){
-//        productService.changeItemInventoryOnlyColor(productId,color,numberOfItems);
-//    }
-
-    @GetMapping("/exist/{product_id}")
+    @GetMapping("/{product_id}/exists")
     public boolean isProductExist(@PathVariable String product_id){
         return productService.isProductExist(product_id);
     }
 
-    @GetMapping("/exist")
-    public ResponseEntity<Boolean> isProductsExists(@RequestParam List<String> ids){
+    @GetMapping("/exists")
+    public ResponseEntity<List<String>> isProductsExists(@RequestParam List<String> ids){
         return ResponseEntity.ok(productService.isProductsExists(ids));
     }
 

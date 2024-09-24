@@ -21,6 +21,7 @@ public class FileStorageController {
     private final FileStorageService fileStorageService;
 
     @PostMapping("/{id}/{colors}")
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<List<String>> addPhotosToProduct(
             @ModelAttribute List<MultipartFile> images,
             @PathVariable String id,

@@ -1,5 +1,4 @@
 package com.mazen.ProductService.service;
-
 import com.mazen.ProductService.dto.ProductDetailsResponse;
 import com.mazen.ProductService.dto.ProductResponse;
 import com.mazen.ProductService.dto.request.post.ProductRequest;
@@ -14,7 +13,9 @@ import com.mazen.ProductService.model.ProductSpecs;
 import com.mazen.ProductService.repository.ProductImageRepository;
 import com.mazen.ProductService.repository.ProductSpecsRepository;
 import com.mazen.ProductService.repository.ProductRepository;
+import com.mazen.ProductService.service.feignClient.SaleServiceClient;
 import com.mazen.ProductService.util.PagedResponse;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -40,6 +41,8 @@ public class ProductService {
     private final ProductSpecsRepository productSpecsRepository;
     private final RestTemplateService restTemplateService;
     private final ModelMapper modelMapper;
+    private final SaleServiceClient saleServiceClient;
+
 
     @Transactional
     public void createProduct(ProductRequest productRequest) {
@@ -62,8 +65,7 @@ public class ProductService {
         productRequest
                 .getProductImageRequests().forEach(productImageRequest -> {
                     try {
-                        mappingService.
-                        convertToProductImage(productImageRequest,product1);
+                        mappingService.convertToProductImage(productImageRequest,product1);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -152,7 +154,6 @@ public class ProductService {
         productRepository.save(product);
     }
 
-
     public List<ProductResponse> getProductsByIds(List<String> ids){
         List<Product> products = productRepository.findAllById(ids);
         // Extract IDs of found products
@@ -225,7 +226,7 @@ public class ProductService {
         return product.isPresent();
     }
 
-    public boolean isProductsExists(List<String> ids){
+    public List<String> isProductsExists(List<String> ids){
         List<String> idsNotFound = new ArrayList<>();
         log.info(ids.toString());
         ids.forEach(id->{
@@ -233,7 +234,7 @@ public class ProductService {
                 idsNotFound.add(id);
             }
         });
-        return idsNotFound.isEmpty();
+        return idsNotFound;
     }
 
     public ProductDetailsResponse getProductDetailsById(String id){
@@ -262,15 +263,25 @@ public class ProductService {
                 products.getTotalPages(),products.isLast());
     }
 
-
     public double getPriceOfAllProducts(List<String> ids){
         double sum = 0.0;
-         for(String id : ids){
+        List<Integer> discounts = new ArrayList<>();
+
+        try{
+             discounts = saleServiceClient.getProductsDiscountByIds(ids);
+        }
+        catch (FeignException ex){
+            log.error(ex.getLocalizedMessage());
+        }
+
+        int index = 0;
+        for(String id : ids){
             Product product = getProductByIdOptional(id);
-            int discount =  restTemplateService.getDiscountOfProduct(id);
-            double price =  product.getPrice();
-            sum+= (price - (price*discount/100.0));
-         }
+            int discount = discounts.get(index);
+            double price =  (product.getPrice()*discount)/100.0;
+            sum+= price;
+            index++;
+        }
          return sum;
     }
 

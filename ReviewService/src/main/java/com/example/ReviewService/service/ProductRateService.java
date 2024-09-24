@@ -45,9 +45,11 @@ public class ProductRateService {
 
     public void addReviewForProduct(ProductRateRequest productRateRequest){
         Optional<Review> review = reviewRepository.findReview(productRateRequest.getProduct_id(),productRateRequest.getUser_id());
+
         if(review.isPresent()){
             throw new BadRequestException("Review is already exists");
         }
+
         restTemplateService.checkProduct(productRateRequest.getProduct_id());
         restTemplateService.checkUser(productRateRequest.getUser_id());
 

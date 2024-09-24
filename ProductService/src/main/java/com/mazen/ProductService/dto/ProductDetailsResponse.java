@@ -16,6 +16,7 @@ import java.util.List;
 public class ProductDetailsResponse {
     private String title;
     private double price;
+    private double priceAfterDiscount;
     private ProductCategory productCategory;
     private String description;
     private List<ProductSpecsResponse> productSpecsResponses;

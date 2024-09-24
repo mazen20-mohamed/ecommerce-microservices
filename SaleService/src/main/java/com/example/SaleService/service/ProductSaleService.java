@@ -4,6 +4,8 @@ package com.example.SaleService.service;
 import com.example.SaleService.exceptions.NotFoundException;
 import com.example.SaleService.model.ProductSale;
 import com.example.SaleService.repository.ProductSaleRepository;
+import com.example.SaleService.service.feignClient.ProductServiceClient;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import java.util.Optional;
 @Slf4j
 public class ProductSaleService {
     private final ProductSaleRepository productSaleRepository;
+    private final ProductServiceClient productServiceClient;
 
     public int getProductDiscountById(String productId){
         Optional<ProductSale> productSale =  productSaleRepository.findById(productId);
@@ -33,6 +36,16 @@ public class ProductSaleService {
         if(productSale.isPresent()){
             productSale.get().setDiscountPercent(discount);
             productSaleRepository.save(productSale.get());
+        }
+
+        try{
+            boolean isExists = productServiceClient.isProductExist(productId);
+            if(!isExists){
+                throw new NotFoundException("Not found product");
+            }
+        }
+        catch (FeignException ex){
+            log.error(ex.getLocalizedMessage());
         }
 
         ProductSale productSale1 = ProductSale.builder()

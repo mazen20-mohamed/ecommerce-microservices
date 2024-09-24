@@ -1,6 +1,5 @@
 package com.mazen.ProductService.service;
 
-
 import com.mazen.ProductService.dto.*;
 import com.mazen.ProductService.dto.request.post.ProductImageRequest;
 import com.mazen.ProductService.dto.request.post.ProductSpecsRequest;
@@ -9,8 +8,10 @@ import com.mazen.ProductService.model.ProductImage;
 import com.mazen.ProductService.model.ProductSpecs;
 import com.mazen.ProductService.repository.ProductImageRepository;
 import com.mazen.ProductService.repository.ProductSpecsRepository;
+import com.mazen.ProductService.service.feignClient.SaleServiceClient;
 import com.mazen.ProductService.util.Colors;
 import com.mazen.ProductService.util.Size;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -19,8 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-
 
 @RequiredArgsConstructor
 @Service
@@ -30,6 +29,20 @@ public class MappingService {
     private final RestTemplateService restTemplateService;
     private final ProductImageRepository productImageRepository;
     private final ProductSpecsRepository productSpecsRepository;
+    private final SaleServiceClient saleServiceClient;
+
+
+    // calculate price after discount
+    public double getPriceAfterDiscount(String productId , double price){
+        int discount =0;
+        try{
+            discount = saleServiceClient.getProductDiscountById(productId);
+        }
+        catch (FeignException ex){
+            log.error(ex.getLocalizedMessage());
+        }
+        return (price*discount)/100.0;
+    }
 
 
     public ProductSpecs convertToProductSpecs(ProductSpecsRequest productSpecsRequest,
@@ -70,10 +83,6 @@ public class MappingService {
         return productSpecsResponse;
     }
 
-    public List<String> createProductImageResponse(ProductImage productImage){
-        return productImage.getImagesPaths();
-    }
-
     public ProductDetailsResponse createProductDetailsResponse(Product product){
         ProductDetailsResponse productDetailsResponse =
                 modelMapper.map(product,ProductDetailsResponse.class);
@@ -90,15 +99,17 @@ public class MappingService {
                         productSpecsResponses.add(productSpecsResponse);
                     }
         });
-
+        productDetailsResponse.setPriceAfterDiscount(getPriceAfterDiscount(product.getId(),product.getPrice()));
         productDetailsResponse.setProductSpecsResponses(productSpecsResponses);
-
         return productDetailsResponse;
     }
 
+
+    // create product response
     public ProductResponse createProductResponse(Product product){
 
         ProductResponse productResponse = modelMapper.map(product,ProductResponse.class);
+
         String image = "";
         for( ProductImage productImage : product.getProductImages())
         {
@@ -107,6 +118,7 @@ public class MappingService {
             }
         }
         productResponse.setImageUrl(image);
+        productResponse.setPriceAfterDiscount(getPriceAfterDiscount(product.getId(),product.getPrice()));
         return productResponse;
     }
 }

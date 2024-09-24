@@ -1,10 +1,12 @@
+myEureka:
+  password: '{cipher}22155bb7642911a2ac431aaecf556fecc3eed424b5f14d57f1538c76d663b870'
 eureka:
   instance:
     hostname: localhost
     instance-id: ${spring.application.name}:${spring.application.instance-id:${random.value}}
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://test:${myEureka.password}@localhost:8761/eureka
 spring:
   cloud:
     config:

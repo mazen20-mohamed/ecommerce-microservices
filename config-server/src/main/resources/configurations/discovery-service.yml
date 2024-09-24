@@ -8,3 +8,8 @@ eureka:
     fetchRegistry: false
     serviceUrl:
       defaultZone: http://${eureka.instance.hostname}/${server.port}/eureka/
+spring:
+  security:
+    user:
+      name: test
+      password: '{cipher}22155bb7642911a2ac431aaecf556fecc3eed424b5f14d57f1538c76d663b870'

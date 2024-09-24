@@ -31,4 +31,15 @@ public class FlashSaleController {
     public PagedResponse<FlashSaleResponse> getAllFlashSales(@PathVariable int page,@PathVariable int size){
         return flashSaleService.getAllFlashSales(page,size);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteFlashSale(@PathVariable long id){
+        flashSaleService.deleteFlashSale(id);
+    }
+
+    @GetMapping("/{id}")
+    public FlashSaleResponse getFlashSaleById(@PathVariable long id){
+        return flashSaleService.getFlashSaleById(id);
+    }
+
 }

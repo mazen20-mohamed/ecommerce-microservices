@@ -9,6 +9,8 @@ import com.example.SaleService.model.FlashSale;
 import com.example.SaleService.model.ProductSale;
 import com.example.SaleService.repository.FlashSaleRepository;
 import com.example.SaleService.repository.ProductSaleRepository;
+import com.example.SaleService.service.feignClient.ProductServiceClient;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -28,6 +30,7 @@ public class FlashSaleService {
     private final FlashSaleRepository flashSaleRepository;
     private final ProductSaleRepository productSaleRepository;
     private final ModelMapper modelMapper;
+    private final ProductServiceClient productServiceClient;
 
     private FlashSaleResponse mapFlashSale(FlashSale flashSale){
         FlashSaleResponse flashSaleResponse = modelMapper.map(flashSale,FlashSaleResponse.class);
@@ -39,6 +42,18 @@ public class FlashSaleService {
     }
 
     public void createFlashSale(FlashSaleRequest flashSaleRequest){
+
+        try{
+             List<String> ids =  productServiceClient.isProductsExists(flashSaleRequest.
+                     getProductSaleDTOS().stream().map(ProductSaleDTO::getProductId).toList());
+             if(!ids.isEmpty()){
+                 throw new NotFoundException("Products with ids not found "+ids);
+             }
+        }
+        catch (FeignException ex){
+            log.error(ex.getLocalizedMessage());
+        }
+
         FlashSale flashSale = modelMapper.map(flashSaleRequest,FlashSale.class);
 
         List<ProductSale> productSales = flashSaleRequest.getProductSaleDTOS().stream().
@@ -73,4 +88,24 @@ public class FlashSaleService {
         return new PagedResponse<>(flashSaleResponses,page,size,flashSales.getTotalElements(),
                 flashSales.getTotalPages(),flashSales.isLast());
     }
+
+    public FlashSale getFlashSale(long id){
+        Optional<FlashSale> flashSale =  flashSaleRepository.findById(id);
+        if(flashSale.isEmpty()){
+            throw new NotFoundException("Flash Sale not found!");
+        }
+        return flashSale.get();
+    }
+
+    public void deleteFlashSale(long id){
+        FlashSale flashSale = getFlashSale(id);
+        flashSaleRepository.delete(flashSale);
+    }
+
+    public FlashSaleResponse getFlashSaleById(long id){
+        FlashSale flashSale = getFlashSale(id);
+        return mapFlashSale(flashSale);
+    }
+
+
 }
