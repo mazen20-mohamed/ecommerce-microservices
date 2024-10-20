@@ -9,13 +9,11 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +42,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             LoginRequest loginRequest = new ObjectMapper().readValue(request.getInputStream(),
                     LoginRequest.class);
             return getAuthenticationManager().authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword(),new ArrayList<>()));
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
+                            loginRequest.getPassword(),new ArrayList<>()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -59,7 +58,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         String userName = ((User)authResult.getPrincipal()).getUsername();
         User user =  userService.getUserByEmail(userName);
-
 
         String token = jwtService.generateToken(user);
 

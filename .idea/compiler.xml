@@ -7,10 +7,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="UserService" />
         <module name="SaleService" />
         <module name="auth-server" />
         <module name="NotificationService" />
+        <module name="JwtAuthority" />
         <module name="Cart-And-WishList-Service" />
         <module name="config-server" />
         <module name="ProductService" />
@@ -22,11 +22,15 @@
         <module name="gateway" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="UserService" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Cart-And-WishList-Service" options="-parameters" />
       <module name="FileStorage" options="-parameters" />
+      <module name="JwtAuthority" options="-parameters" />
       <module name="NotificationService" options="-parameters" />
       <module name="OrderService" options="-parameters" />
       <module name="PhoneService" options="-parameters" />

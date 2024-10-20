@@ -13,3 +13,14 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+logging:
+  level:
+    com:
+      mazen:
+        Cart:
+          And:
+            WishList:
+              Service:
+                service:
+                  feignClient:
+                    UserClient: DEBUG

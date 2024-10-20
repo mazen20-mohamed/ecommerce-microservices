@@ -11,3 +11,8 @@ spring:
   cloud:
     config:
       override-system-properties: false
+application:
+  security:
+    jwt:
+      secret-key: '{cipher}01d6c848b669e1b6faa621459dd44a8358dba49c7628bd73db7ca9508dee6d3f1c69e26326d84ece2a1ebfaf1f68d45d5ab2dc1509e6e1857515004a62ef5ccf70b86baff98112f5c40476808434e7ec1dc24f08a93150f0ebef0dd2c3fc8f9d'
+      expiration: 8640000 # a day

@@ -18,5 +18,6 @@ public class Cart extends DateEntity{
     private String product_id;
 
     private String user_id;
+
     private int numberOfItems;
 }

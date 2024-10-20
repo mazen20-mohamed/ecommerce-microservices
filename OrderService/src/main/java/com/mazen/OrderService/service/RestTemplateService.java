@@ -1,5 +1,4 @@
 package com.mazen.OrderService.service;
-
 import com.mazen.OrderService.dto.ProductResponse;
 import com.mazen.OrderService.dto.UserResponseDTO;
 import com.mazen.OrderService.exceptions.NotFoundException;
@@ -23,8 +22,7 @@ import java.util.Objects;
 public class RestTemplateService {
     private final RestTemplate restTemplate;
 
-
-    public void isProductIdExits(List<String> ids){
+    public void isProductIdExits (List<String> ids) {
         String url = "http://localhost:8200/v1/product/isProductsExists?ids={ids}";
         ResponseEntity<Boolean> check = restTemplate.getForEntity(url, Boolean.class,String.join(",", ids));
         if(!check.getStatusCode().equals(HttpStatus.OK)){

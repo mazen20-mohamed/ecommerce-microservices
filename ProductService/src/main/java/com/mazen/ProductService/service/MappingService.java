@@ -8,14 +8,24 @@ import com.mazen.ProductService.model.ProductImage;
 import com.mazen.ProductService.model.ProductSpecs;
 import com.mazen.ProductService.repository.ProductImageRepository;
 import com.mazen.ProductService.repository.ProductSpecsRepository;
+import com.mazen.ProductService.service.feignClient.FileServiceClient;
 import com.mazen.ProductService.service.feignClient.SaleServiceClient;
 import com.mazen.ProductService.util.Colors;
 import com.mazen.ProductService.util.Size;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,10 +36,10 @@ import java.util.List;
 @Slf4j
 public class MappingService {
     private final ModelMapper modelMapper;
-    private final RestTemplateService restTemplateService;
     private final ProductImageRepository productImageRepository;
     private final ProductSpecsRepository productSpecsRepository;
     private final SaleServiceClient saleServiceClient;
+    private final FileServiceClient fileServiceClient;
 
 
     // calculate price after discount
@@ -54,14 +64,24 @@ public class MappingService {
     }
 
     public void convertToProductImage(ProductImageRequest productImageRequest,
-                                              Product product) throws IOException {
+                                              Product product,String authorization) throws IOException {
         ProductImage productImage = modelMapper.
                 map(productImageRequest,ProductImage.class);
 
         productImage.setProduct(product);
 
-        List<String> images =  restTemplateService.saveImagesRequest(productImageRequest.getImages(),
-                product,productImageRequest.getColors());
+        List<String> images;
+
+        try{
+            images =  fileServiceClient.addPhotosToProduct(
+                    productImageRequest.getImages(),
+                    product.getId(),
+                    productImageRequest.getColors(),
+                    authorization);
+        }
+        catch (Exception ex){
+            throw new BadRequestException(ex.getMessage());
+        }
 
         productImage.setImagesPaths(images);
         productImageRepository.save(productImage);
@@ -76,6 +96,7 @@ public class MappingService {
         ProductSpecsResponse productSpecsResponse = ProductSpecsResponse.builder()
                 .colors(productSpecs.get(0).getColors())
                 .build();
+
         List<SpecsDetails> specsDetails = productSpecs.stream().map(productSpecs1 -> this.createSpecsDetails
                 (productSpecs1.getSize(),productSpecs1.getNumberInStock())).toList();
 
@@ -87,6 +108,7 @@ public class MappingService {
         ProductDetailsResponse productDetailsResponse =
                 modelMapper.map(product,ProductDetailsResponse.class);
 
+        productDetailsResponse.setProductCategory(product.getProductCategory().getCategory());
 
         List<ProductSpecsResponse> productSpecsResponses = new ArrayList<>();
 
@@ -109,6 +131,8 @@ public class MappingService {
     public ProductResponse createProductResponse(Product product){
 
         ProductResponse productResponse = modelMapper.map(product,ProductResponse.class);
+
+        productResponse.setProductCategory(product.getProductCategory().getCategory());
 
         String image = "";
         for( ProductImage productImage : product.getProductImages())

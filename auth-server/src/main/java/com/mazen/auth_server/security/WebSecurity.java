@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -25,6 +26,7 @@ public class WebSecurity {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final Environment environment;
 
 
     @Bean
@@ -44,11 +46,14 @@ public class WebSecurity {
         http.csrf(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests(req->
-                req.requestMatchers(HttpMethod.POST, "/v1/auth/**").permitAll());
+                req.requestMatchers(HttpMethod.POST, "/v1/auth/**").permitAll()
+                        .anyRequest().authenticated());
 
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager,userService,jwtService);
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter
+                (authenticationManager,userService,jwtService);
         authenticationFilter.setFilterProcessesUrl("/v1/auth/login");
         http.addFilter(authenticationFilter)
+                .addFilter(new AuthorizationFilter(authenticationManager,environment))
                 .authenticationManager(authenticationManager);
 
         http.sessionManagement(session->

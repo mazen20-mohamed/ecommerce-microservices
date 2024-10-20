@@ -16,6 +16,34 @@ spring:
             - Header=Authorization, Bearer (.*)
           filters:
             - AuthenticationFilter
+        - id: product_server_category
+          uri: lb://ProductService
+          predicates:
+            - Path=/v1/productsCategory/**
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - AuthenticationFilter
+        - id: file_storage_service
+          uri: lb://FileStorage
+          predicates:
+            - Path=/v1/file/**
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - AuthenticationFilter
+        - id: wishlist_service
+          uri: lb://Cart-And-WishList-Service
+          predicates:
+            - Path=/v1/wishlist/**
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - AuthenticationFilter
+        - id: cart_service
+          uri: lb://Cart-And-WishList-Service
+          predicates:
+            - Path=/v1/cart/**
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - AuthenticationFilter
 management:
   endpoint:
     gateway:

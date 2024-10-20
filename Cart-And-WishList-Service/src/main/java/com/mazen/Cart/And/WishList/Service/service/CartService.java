@@ -1,19 +1,20 @@
 package com.mazen.Cart.And.WishList.Service.service;
 
 import com.mazen.Cart.And.WishList.Service.dto.CartRequest;
+import com.mazen.Cart.And.WishList.Service.dto.CartResponse;
 import com.mazen.Cart.And.WishList.Service.dto.ProductResponse;
-import com.mazen.Cart.And.WishList.Service.dto.WishListRequest;
 import com.mazen.Cart.And.WishList.Service.exceptions.BadRequestException;
 import com.mazen.Cart.And.WishList.Service.exceptions.NotFoundException;
 import com.mazen.Cart.And.WishList.Service.model.Cart;
-import com.mazen.Cart.And.WishList.Service.model.WishList;
 import com.mazen.Cart.And.WishList.Service.repository.CartRepository;
+import com.mazen.Cart.And.WishList.Service.service.feignClient.ProductClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +24,7 @@ import java.util.Optional;
 public class CartService {
     private final CartRepository cartRepository;
     private final ModelMapper modelMapper;
-    private final RestTemplateService restTemplateService;
+    private final ProductClient productClient;
 
     public Cart getCartByProductIdAndUserId(String productId,String userId){
         return cartRepository.findByProductIdAndUserId(productId,userId).orElseThrow(()->
@@ -51,22 +52,35 @@ public class CartService {
         cartRepository.deleteAll(cart.get());
     }
 
-
-
     @Transactional
     public void updateCart(CartRequest cartRequest, long id){
-        Cart cart = cartRepository.findById(id).orElseThrow(()->new NotFoundException("Not found the wish list with id "+id));
+        Cart cart = cartRepository.findById(id).orElseThrow(()->
+                new NotFoundException("Not found the wish list with id "+id));
         modelMapper.map(cartRequest,cart);
         cartRepository.save(cart);
     }
 
-    public List<ProductResponse> getCartProducts(String user_id){
+    public List<CartResponse> getCartProducts(String user_id, String authorization){
         Optional<List<Cart>> cart = cartRepository.findByUserId(user_id);
+
         if(cart.isEmpty()){
             return List.of();
         }
+
         List<String> productIds = cart.get().stream().map(Cart::getProduct_id).toList();
-        return restTemplateService.getProductsByIds(productIds);
+
+        List<ProductResponse> productResponses =  productClient.getProductsByIds(productIds,authorization);
+
+        int index = 0;
+        List<CartResponse> cartResponses = new ArrayList<>();
+        for(Cart cart1 : cart.get()){
+            cartResponses.add(CartResponse.builder()
+                    .id(cart1.getId())
+                    .productResponse(productResponses.get(index))
+                    .numberOfItems(cart1.getNumberOfItems())
+                    .build());
+        }
+        return cartResponses;
     }
 
     @Transactional
@@ -84,11 +98,6 @@ public class CartService {
         }
         cart.setNumberOfItems(cart.getNumberOfItems()-1);
         cartRepository.save(cart);
-    }
-
-    public boolean isProductInTheCart(String productId,String userId){
-        Optional<Cart> cart = cartRepository.findByProductIdAndUserId(productId,userId);
-        return cart.isPresent();
     }
 
 }

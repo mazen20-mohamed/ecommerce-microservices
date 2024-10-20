@@ -26,7 +26,8 @@ public class Product extends DateEntity {
 
     private String description;
 
-    @Enumerated(value = EnumType.STRING)
+    @ManyToOne
+    @JoinColumn(name = "product_category_id",referencedColumnName = "id")
     private ProductCategory productCategory;
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)

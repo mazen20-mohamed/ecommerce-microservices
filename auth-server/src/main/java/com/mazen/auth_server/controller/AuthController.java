@@ -1,8 +1,5 @@
 package com.mazen.auth_server.controller;
 
-
-import com.mazen.auth_server.dto.LoginRequest;
-import com.mazen.auth_server.dto.LoginResponse;
 import com.mazen.auth_server.dto.UserRequest;
 import com.mazen.auth_server.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +18,6 @@ public class AuthController {
     public void addUser(@RequestBody UserRequest userRequest){
         userService.createUser(userRequest);
     }
-
-//    @PostMapping("/login")
-//    public LoginResponse loginUser(@RequestBody LoginRequest loginRequest){
-//        return userService.loginUser(loginRequest);
-//    }
 
 
 }

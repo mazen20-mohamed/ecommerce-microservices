@@ -24,7 +24,7 @@ public class ProductRequest {
     @NotEmpty
     private String description;
     @NotNull
-    private ProductCategory productCategory;
+    private String productCategory;
     @Size(min = 1)
     private List<ProductSpecsRequest> productSpecsRequests;
     @Size(min = 1)

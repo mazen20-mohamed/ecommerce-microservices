@@ -1,17 +1,16 @@
 package com.mazen.FileStorage.service;
 
-
-import com.mazen.FileStorage.exceptions.BadRequestException;
 import com.mazen.FileStorage.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.DirectoryStream;
@@ -27,6 +26,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class FileStorageService {
     public static String IMAGES_PATH = System.getProperty("user.dir") + "/FileStorage/public/images/";
+    private final DiscoveryClient discoveryClient;
 
     public List<String> addPhotosForProduct(List<MultipartFile> files,
                                             String id,
@@ -40,13 +40,19 @@ public class FileStorageService {
                 log.info("Directory created: " + directoryPath.toString());
             } catch (IOException e) {
                 log.error("Failed to create directory: " + directoryPath.toString());
+                throw new IOException("Could not create directory for product images.");
             }
         }
+        String gatewayUrl = discoveryClient.getInstances("gateway-service")  // Replace with your actual gateway service name
+                .stream()
+                .findFirst()
+                .map(serviceInstance -> serviceInstance.getUri().toString())
+                .orElseThrow(() -> new RuntimeException("Gateway not found"));
 
         for(MultipartFile f : files){
 
-            String fileDownloadUri = ServletUriComponentsBuilder
-                    .fromCurrentContextPath()
+            String fileDownloadUri = UriComponentsBuilder
+                    .fromHttpUrl(gatewayUrl)
                     .path("v1/file/"+id+"/"+colors+"/")
                     .path(Objects.requireNonNull(f.getOriginalFilename()))
                     .toUriString();
@@ -88,9 +94,11 @@ public class FileStorageService {
         }
         catch (Exception e){
             log.error("Failed to delete images");
+            return false;
         }
         return true;
     }
+
     public static void deleteDirectoryRecursively(Path path) throws IOException {
         if (Files.isDirectory(path)) {
             try (DirectoryStream<Path> entries = Files.newDirectoryStream(path)) {

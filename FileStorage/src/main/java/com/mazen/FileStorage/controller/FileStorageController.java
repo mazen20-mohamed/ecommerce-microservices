@@ -1,5 +1,4 @@
 package com.mazen.FileStorage.controller;
-
 import com.mazen.FileStorage.service.Colors;
 import com.mazen.FileStorage.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
@@ -8,9 +7,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -20,14 +19,15 @@ import java.util.List;
 public class FileStorageController {
     private final FileStorageService fileStorageService;
 
-    @PostMapping("/{id}/{colors}")
+    @PostMapping(value = "/{id}/{colors}", consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<List<String>> addPhotosToProduct(
-            @ModelAttribute List<MultipartFile> images,
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<String> addPhotosToProduct(
+            @RequestPart("images") List<MultipartFile> images,
             @PathVariable String id,
             @PathVariable Colors colors) throws IOException {
 
-        return ResponseEntity.ok(fileStorageService.addPhotosForProduct(images,id,colors));
+        return fileStorageService.addPhotosForProduct(images,id,colors);
     }
 
     @GetMapping("/{id}/{colors}/{fileName}")
@@ -40,12 +40,14 @@ public class FileStorageController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Boolean> deletePhotos(@PathVariable String id){
         return ResponseEntity.ok(fileStorageService.deletePhotosOfProduct(id));
     }
 
-    @PutMapping("/{id}/{colors}")
-    public List<String> updatePhotos(@ModelAttribute List<MultipartFile> images,
+    @PutMapping(value = "/{id}/{colors}", consumes = "multipart/form-data")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<String> updatePhotos(@RequestPart("images") List<MultipartFile> images,
                                      @PathVariable String id,
                                      @PathVariable Colors colors) throws IOException {
         return fileStorageService.updatePhotos(images, id,colors);

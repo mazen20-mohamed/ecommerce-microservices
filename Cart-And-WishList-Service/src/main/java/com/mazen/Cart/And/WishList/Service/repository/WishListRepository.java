@@ -12,5 +12,5 @@ public interface WishListRepository extends JpaRepository<WishList,Long> {
     Optional<WishList> findByProductIdAndUserId(String productId,String userId);
 
     @Query("Select w from WishList w Where w.user_id = :userId")
-    Optional<List<WishList>> findByUserId(String userId);
+    List<WishList> findByUserId(String userId);
 }

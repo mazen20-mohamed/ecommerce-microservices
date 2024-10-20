@@ -23,7 +23,7 @@ public class ProductUpdate {
     @NotEmpty
     private String description;
     @NotNull
-    private ProductCategory productCategory;
+    private String productCategory;
     @Size(min = 1)
     private List<ProductSpecsUpdate> productSpecsUpdates;
     @Size(min=1)

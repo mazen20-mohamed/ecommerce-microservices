@@ -3,6 +3,7 @@ package com.mazen.Cart.And.WishList.Service.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -29,11 +30,23 @@ public class ExceptionHandlerAdvice {
         );
     }
 
-    @ExceptionHandler({NullPointerException.class, Exception.class,ServerErrorException.class})
+    @ExceptionHandler({NullPointerException.class,ServerErrorException.class})
     public ResponseEntity<ErrorResponse> handleInternalServerError(Exception e){
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;// 500
 
         return new ResponseEntity<>(new ErrorResponse(status,e.getMessage()),status);
     }
 
+    @ExceptionHandler({UnAuthorizeException.class})
+    public ResponseEntity<ErrorResponse> handleUnAuthorizeException(Exception e){
+        HttpStatus status = HttpStatus.UNAUTHORIZED;// 401
+
+        return new ResponseEntity<>(new ErrorResponse(status,e.getMessage()),status);
+    }
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException exception) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;// 401
+
+        return new ResponseEntity<>(new ErrorResponse(status,exception.getMessage()),status);
+    }
 }

@@ -10,9 +10,11 @@ import com.mazen.ProductService.model.Product;
 import com.mazen.ProductService.model.ProductCategory;
 import com.mazen.ProductService.model.ProductImage;
 import com.mazen.ProductService.model.ProductSpecs;
+import com.mazen.ProductService.repository.ProductCategoryRepository;
 import com.mazen.ProductService.repository.ProductImageRepository;
 import com.mazen.ProductService.repository.ProductSpecsRepository;
 import com.mazen.ProductService.repository.ProductRepository;
+import com.mazen.ProductService.service.feignClient.FileServiceClient;
 import com.mazen.ProductService.service.feignClient.SaleServiceClient;
 import com.mazen.ProductService.util.PagedResponse;
 import feign.FeignException;
@@ -23,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,17 +42,23 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final MappingService mappingService;
     private final ProductSpecsRepository productSpecsRepository;
-    private final RestTemplateService restTemplateService;
     private final ModelMapper modelMapper;
+    private final FileServiceClient fileServiceClient;
     private final SaleServiceClient saleServiceClient;
-
+    private final ProductCategoryRepository productCategoryRepository;
 
     @Transactional
-    public void createProduct(ProductRequest productRequest) {
+    public void createProduct(ProductRequest productRequest,String authorization) {
+        log.info(authorization);
+
+        ProductCategory productCategory = productCategoryRepository.findByCategory
+                (productRequest.getProductCategory()).orElseThrow(()->
+                new NotFoundException("Not found product category with the name"));
+
         Product product = Product.builder()
                 .title(productRequest.getTitle())
                 .price(productRequest.getPrice())
-                .productCategory(productRequest.getProductCategory())
+                .productCategory(productCategory)
                 .build();
 
         List<ProductSpecs> productSpecs = productRequest
@@ -65,20 +74,25 @@ public class ProductService {
         productRequest
                 .getProductImageRequests().forEach(productImageRequest -> {
                     try {
-                        mappingService.convertToProductImage(productImageRequest,product1);
+                        mappingService.convertToProductImage(productImageRequest,product1,authorization);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 });
-
     }
 
     @Transactional
-    public void deleteProduct(String id){
-        restTemplateService.deleteProductImages(id);
+    public void deleteProduct(String id,String authorization){
+        try{
+            if(!fileServiceClient.deletePhotos(id,authorization).getBody()){
+                throw new BadRequestException("Failed to delete images of product");
+            }
+        }
+        catch (Exception ex){
+            throw new BadRequestException(ex.getMessage());
+        }
         productRepository.deleteById(id);
     }
-
 
     public Product getProductByIdOptional(String id){
         return productRepository.findById(id).orElseThrow(()->
@@ -86,7 +100,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void updateProduct(String id, ProductUpdate productUpdateRequest){
+    public void updateProduct(String id, ProductUpdate productUpdateRequest,String authorization){
 
         Product product = getProductByIdOptional(id);
 
@@ -134,8 +148,12 @@ public class ProductService {
 
                     try {
                         if(!(productImageUpdate.getImages() == null || productImageUpdate.getImages().isEmpty())){
-                            List<String> imageRequests = restTemplateService.updateImagesRequest(
-                                    productImageUpdate.getImages(),product,productImageUpdate.getColors());
+                            List<String> imageRequests = fileServiceClient.updatePhotos(
+                                    productImageUpdate.getImages(),
+                                    product.getId(),
+                                    productImageUpdate.getColors(),
+                                    authorization);
+
                             allImages.addAll(imageRequests);
                         }
 
@@ -241,7 +259,6 @@ public class ProductService {
         Product product = getProductByIdOptional(id);
         return mappingService.createProductDetailsResponse(product);
     }
-
 
     public PagedResponse<ProductResponse> getAllProductByCategory(ProductCategory category, int page, int size){
         Pageable pageable = PageRequest.of(page,size, Sort.by("createdAt").descending());

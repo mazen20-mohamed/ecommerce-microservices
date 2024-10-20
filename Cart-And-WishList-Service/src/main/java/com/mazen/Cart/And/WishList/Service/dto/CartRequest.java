@@ -1,6 +1,4 @@
 package com.mazen.Cart.And.WishList.Service.dto;
-
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

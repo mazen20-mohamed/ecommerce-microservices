@@ -1,7 +1,6 @@
 package com.mazen.ProductService.dto;
 
 
-import com.mazen.ProductService.model.ProductCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +16,7 @@ public class ProductDetailsResponse {
     private String title;
     private double price;
     private double priceAfterDiscount;
-    private ProductCategory productCategory;
+    private String productCategory;
     private String description;
     private List<ProductSpecsResponse> productSpecsResponses;
 }
