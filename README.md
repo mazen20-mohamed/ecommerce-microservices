@@ -1,2 +1,6 @@
-This eCommerce project utilizes a microservice architecture, designed for scalability and flexibility. It leverages key technologies like Spring Framework and Spring JPA to handle business logic and data persistence. The project is built on Spring Cloud for distributed system management, utilizing Config Server for centralized configuration, and Eureka Server for service discovery and load balancing.
-Inter-service communication is facilitated through Feign Client, ensuring seamless integration between microservices. Spring Security with JWT token is implemented to secure the application, providing robust authentication and authorization. Kafka acts as a message broker, ensuring reliable and scalable asynchronous communication between services, which is ideal for handling high-throughput data streaming and event-driven architecture.
+- This eCommerce project utilizes a microservice architecture, designed for scalability and flexibility.
+-  It leverages key technologies like Spring Framework and Spring JPA to handle business logic and data persistence.
+-   The project is built on Spring Cloud for distributed system management, utilizing Config Server for centralized configuration, and Eureka Server for service discovery and load balancing.
+- Inter-service communication is facilitated through Feign Client, ensuring seamless integration between microservices.
+- Spring Security with JWT token is implemented to secure the application, providing robust authentication and authorization.
+- Kafka acts as a message broker, ensuring reliable and scalable asynchronous communication between services, which is ideal for handling high-throughput data streaming and event-driven architecture.
