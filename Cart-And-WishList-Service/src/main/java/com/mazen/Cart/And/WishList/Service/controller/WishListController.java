@@ -35,10 +35,9 @@ public class WishListController {
         return wishListService.getWishListProducts(userId,authorization);
     }
 
-    @DeleteMapping("/{productId}/{userId}")
-    @PreAuthorize("hasRole('ADMIN') OR principal == #userId")
-    public void deleteWishListProduct(@PathVariable String productId,@PathVariable String userId){
-        wishListService.deleteWishListProduct(productId,userId);
+    @DeleteMapping("/{wishlistId}")
+    public void deleteWishListProduct(@PathVariable long wishlistId){
+        wishListService.deleteWishListProduct(wishlistId);
     }
 
     @PutMapping("/{id}")
@@ -50,15 +49,15 @@ public class WishListController {
 
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN') OR principal == #userId")
-    public void deleteWishList(@PathVariable String userId){
-        wishListService.deleteWishList(userId);
+    public void deleteWishLists(@PathVariable String userId){
+        wishListService.deleteWishLists(userId);
     }
 
 
-    @PutMapping("/{productId}/{userId}")
+    @PutMapping("/{wishlistId}")
     @PreAuthorize("hasRole('ADMIN') OR principal == #userId")
-    public void moveToCart(@PathVariable String productId,@PathVariable String userId){
-        wishListService.moveToCart(productId,userId);
+    public void moveToCart(@PathVariable long wishlistId){
+        wishListService.moveToCart(wishlistId);
     }
 
 }

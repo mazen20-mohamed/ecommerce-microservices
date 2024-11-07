@@ -6,7 +6,7 @@ import com.mazen.OrderService.exceptions.BadRequestException;
 import com.mazen.OrderService.exceptions.NotFoundException;
 import com.mazen.OrderService.model.*;
 import com.mazen.OrderService.model.order.FinishedOrder;
-import com.mazen.OrderService.model.order.Order;
+import com.mazen.OrderService.model.order.CurrentOrder;
 import com.mazen.OrderService.repository.FinishedOrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class FinishedOrderService {
 
     @Transactional
     public void changeOrderToFinished(String orderId){
-        Order order = orderService.getOrderByIdWithCheck(orderId);
+        CurrentOrder order = orderService.getOrderByIdWithCheck(orderId);
         if(!order.getStatus().equals(OrderStatus.Delivery)){
             throw new BadRequestException("Order is not even delivered");
         }

@@ -26,25 +26,25 @@ public class CartService {
     private final ModelMapper modelMapper;
     private final ProductClient productClient;
 
-    public Cart getCartByProductIdAndUserId(String productId,String userId){
-        return cartRepository.findByProductIdAndUserId(productId,userId).orElseThrow(()->
-                new NotFoundException("Not found the product with id "+ productId));
+    public Cart findCartById(long id){
+        return cartRepository.findById(id).orElseThrow(()->
+                new NotFoundException("Can not found cart with id "+id));
     }
 
     @Transactional
-    public void createCart(CartRequest cartRequest){
+    public void createCartItem(CartRequest cartRequest){
         Cart cart = modelMapper.map(cartRequest,Cart.class);
         cartRepository.save(cart);
     }
 
     @Transactional
-    public void deleteCartProduct(String productId,String userId){
-        Cart cart= getCartByProductIdAndUserId(productId,userId);
+    public void deleteCartItem(long cartId){
+        Cart cart= findCartById(cartId);
         cartRepository.delete(cart);
     }
 
     @Transactional
-    public void deleteAllProductInCart(String userId){
+    public void deleteAllCartItems(String userId){
         Optional<List<Cart>> cart = cartRepository.findByUserId(userId);
         if(cart.isEmpty()){
             return ;
@@ -53,9 +53,8 @@ public class CartService {
     }
 
     @Transactional
-    public void updateCart(CartRequest cartRequest, long id){
-        Cart cart = cartRepository.findById(id).orElseThrow(()->
-                new NotFoundException("Not found the wish list with id "+id));
+    public void updateCartItem(CartRequest cartRequest, long id){
+        Cart cart = findCartById(id);
         modelMapper.map(cartRequest,cart);
         cartRepository.save(cart);
     }
@@ -84,17 +83,17 @@ public class CartService {
     }
 
     @Transactional
-    public void increaseNumberOfItems(String productId, String userId){
-        Cart cart= getCartByProductIdAndUserId(productId,userId);
+    public void increaseNumberOfItems(long cartId){
+        Cart cart = findCartById(cartId);
         cart.setNumberOfItems(cart.getNumberOfItems()+1);
         cartRepository.save(cart);
     }
 
     @Transactional
-    public void decreaseNumberOfItems(String productId, String userId){
-        Cart cart= getCartByProductIdAndUserId(productId,userId);
+    public void decreaseNumberOfItems(long cartId){
+        Cart cart = findCartById(cartId);
         if(cart.getNumberOfItems()==0){
-            throw new BadRequestException("cannot number of items are 0");
+            deleteCartItem(cartId);
         }
         cart.setNumberOfItems(cart.getNumberOfItems()-1);
         cartRepository.save(cart);

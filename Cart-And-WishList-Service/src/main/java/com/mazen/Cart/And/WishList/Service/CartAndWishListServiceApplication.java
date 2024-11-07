@@ -1,6 +1,6 @@
 package com.mazen.Cart.And.WishList.Service;
 
-import com.mazen.Cart.And.WishList.Service.dto.FeignErrorDecoder;
+import com.mazen.Cart.And.WishList.Service.exceptions.FeignErrorDecoder;
 import feign.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

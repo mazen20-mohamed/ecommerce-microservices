@@ -70,7 +70,7 @@ public class MappingService {
 
         productImage.setProduct(product);
 
-        List<String> images;
+        List<String> images = new ArrayList<>();
 
         try{
             images =  fileServiceClient.addPhotosToProduct(
@@ -79,8 +79,10 @@ public class MappingService {
                     productImageRequest.getColors(),
                     authorization);
         }
-        catch (Exception ex){
-            throw new BadRequestException(ex.getMessage());
+        catch (FeignException ex){
+            if(ex.status()==500){
+                log.error("Error with ");
+            }
         }
 
         productImage.setImagesPaths(images);

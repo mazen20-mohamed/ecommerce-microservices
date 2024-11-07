@@ -31,6 +31,17 @@ public class WishListService {
     private final UserClient userClient;
     private final ProductClient productClient;
 
+    private WishList findByProductIdAndUserId(String productId,String userId){
+        return wishListRepository.findByProductIdAndUserId
+                (productId,userId).orElseThrow(()->new
+                NotFoundException("Not found the product with id "+ productId));
+    }
+
+    public WishList findByWishListId(long wishlistId){
+        return wishListRepository.findById(wishlistId).orElseThrow(()->
+                new NotFoundException("Not found wishlist with id "+wishlistId));
+    }
+
     @Transactional
     public void createWishList(WishListRequest wishListRequest,String authorization){
         WishList wishList = modelMapper.map(wishListRequest,WishList.class);
@@ -48,23 +59,18 @@ public class WishListService {
         wishListRepository.save(wishList);
     }
 
-    private WishList findByProductIdAndUserId(String productId,String userId){
-        return wishListRepository.findByProductIdAndUserId
-                (productId,userId).orElseThrow(()->new
-                NotFoundException("Not found the product with id "+ productId));
-    }
+
 
     @Transactional
-    public void deleteWishListProduct(String productId,String userId){
-        WishList wishList = findByProductIdAndUserId(productId,userId);
+    public void deleteWishListProduct(long wishlistId){
+        WishList wishList = findByWishListId(wishlistId);
 
         wishListRepository.delete(wishList);
     }
 
     @Transactional
     public void updateWishList(WishListRequest wishListRequest, long id){
-        WishList wishList = wishListRepository.findById(id).orElseThrow(()->
-                new NotFoundException("Not found the wish list with id "+id));
+        WishList wishList = findByWishListId(id);
         modelMapper.map(wishListRequest,wishList);
         wishListRepository.save(wishList);
     }
@@ -90,7 +96,7 @@ public class WishListService {
     }
 
     @Transactional
-    public void deleteWishList(String userId){
+    public void deleteWishLists(String userId){
         List<WishList> wishLists = wishListRepository.findByUserId(userId);
         if(wishLists.isEmpty()){
             return;
@@ -99,12 +105,12 @@ public class WishListService {
     }
 
     @Transactional
-    public void moveToCart(String productId,String userId){
-        findByProductIdAndUserId(productId,userId);
-        cartService.createCart(CartRequest.builder()
-                .user_id(userId)
+    public void moveToCart(long wishlistId){
+        WishList wishList =  findByWishListId(wishlistId);
+        cartService.createCartItem(CartRequest.builder()
+                .user_id(wishList.getUser_id())
                 .numberOfItems(1)
-                .product_id(productId)
+                .product_id(wishList.getProduct_id())
                 .build());
     }
 

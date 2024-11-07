@@ -1,6 +1,6 @@
 package com.mazen.Cart.And.WishList.Service.security;
 
-import com.example.JwtAuthority.JwtParser;
+import com.example.jwtAuthority.JwtParser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

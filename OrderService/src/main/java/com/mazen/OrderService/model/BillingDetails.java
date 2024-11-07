@@ -1,7 +1,5 @@
 package com.mazen.OrderService.model;
 
-import com.mazen.OrderService.model.order.CanceledOrder;
-import com.mazen.OrderService.model.order.FinishedOrder;
 import com.mazen.OrderService.model.order.Order;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,12 +28,8 @@ public class BillingDetails {
 
     private String phoneNumber;
 
+    private String user_id;
+
     @OneToOne(mappedBy = "billingDetails")
     private Order order;
-
-    @OneToOne(mappedBy = "billingDetails")
-    private FinishedOrder finishedOrder;
-
-    @OneToOne(mappedBy = "billingDetails")
-    private CanceledOrder canceledOrder;
 }

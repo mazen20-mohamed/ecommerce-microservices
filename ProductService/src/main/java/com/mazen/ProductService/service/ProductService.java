@@ -40,12 +40,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
-    private final MappingService mappingService;
     private final ProductSpecsRepository productSpecsRepository;
+    private final ProductCategoryRepository productCategoryRepository;
     private final ModelMapper modelMapper;
+    private final MappingService mappingService;
     private final FileServiceClient fileServiceClient;
     private final SaleServiceClient saleServiceClient;
-    private final ProductCategoryRepository productCategoryRepository;
 
     @Transactional
     public void createProduct(ProductRequest productRequest,String authorization) {

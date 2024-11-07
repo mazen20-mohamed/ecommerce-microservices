@@ -109,7 +109,13 @@
 			<artifactId>spring-security-config</artifactId>
 			<version>6.3.1</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>io.github.mazen20-mohamed</groupId>
+            <artifactId>JwtAuthority</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

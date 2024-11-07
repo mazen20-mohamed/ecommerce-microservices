@@ -1,7 +1,6 @@
-package com.example.JwtAuthority;
+package com.example.jwtAuthority;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

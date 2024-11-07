@@ -4,8 +4,8 @@ import com.mazen.OrderService.dto.*;
 import com.mazen.OrderService.exceptions.NotFoundException;
 import com.mazen.OrderService.kafka.OrderProducer;
 import com.mazen.OrderService.model.*;
-import com.mazen.OrderService.model.order.Order;
-import com.mazen.OrderService.repository.OrderRepository;
+import com.mazen.OrderService.model.order.CurrentOrder;
+import com.mazen.OrderService.repository.CurrentOrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -23,7 +23,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class OrderService {
-    private final OrderRepository orderRepository;
+    private final CurrentOrderRepository orderRepository;
     private final ModelMapper modelMapper;
     private final RestTemplateService restTemplateService;
     private final OrderProducer orderProducer;
@@ -41,7 +41,7 @@ public class OrderService {
         double orderPrice = restTemplateService.calculateOrderPrice(ids);
 
         // Order Mapping
-        Order order = modelMapper.map(orderRequest,Order.class);
+        CurrentOrder order = modelMapper.map(orderRequest, CurrentOrder.class);
         order.setTotalPrice(orderPrice);
 
         BillingDetails billingDetails = modelMapper.map(orderRequest.getDetailsRequest(), BillingDetails.class);
@@ -76,27 +76,27 @@ public class OrderService {
                 ).build());
     }
 
-    public Order getOrderByIdWithCheck(String id){
+    public CurrentOrder getOrderByIdWithCheck(String id){
         return orderRepository.findById(id)
                 .orElseThrow(()->new NotFoundException("Cannot find order with id "+id));
     }
 
     @Transactional
     public void changeStatusOfOrder(OrderStatus status , String orderId){
-        Order order =  getOrderByIdWithCheck(orderId);
+        CurrentOrder order =  getOrderByIdWithCheck(orderId);
         order.setStatus(status);
         orderRepository.save(order);
     }
 
     @Transactional
     public void deleteOrder(String orderId){
-        Order order = getOrderByIdWithCheck(orderId);
+        CurrentOrder order = getOrderByIdWithCheck(orderId);
         orderRepository.delete(order);
     }
 
 
     @Transactional
-    public OrderResponse returnOrderResponse(Order order){
+    public OrderResponse returnOrderResponse(CurrentOrder order){
         OrderResponse orderResponse =  modelMapper.map(order,OrderResponse.class);
         orderResponse.setProductItemsId(order.getProductItems()
                 .stream().map(ProductItem::getId).toList());
@@ -104,20 +104,20 @@ public class OrderService {
     }
 
     public OrderResponse getOrderById(String orderId){
-        Order order = getOrderByIdWithCheck(orderId);
+        CurrentOrder order = getOrderByIdWithCheck(orderId);
         return returnOrderResponse(order);
     }
 
 
 
     public List<OrderResponse> getOrderByUserId(String userId){
-        Optional<List<Order>> orders = orderRepository.getOrdersByUserId(userId);
+        Optional<List<CurrentOrder>> orders = orderRepository.getOrdersByUserId(userId);
         return orders.map(orderList -> orderList.stream().map(this::returnOrderResponse).toList()).orElseGet(List::of);
     }
 
     public PagedResponse<OrderResponse> getAllOrders(int page, int size){
         Pageable pageable = PageRequest.of(page,size, Sort.by("createdAt").descending());
-        Page<Order> orders = orderRepository.findAll(pageable);
+        Page<CurrentOrder> orders = orderRepository.findAll(pageable);
         List<OrderResponse> orderResponses =  orders.stream().map(this::returnOrderResponse).toList();
         return new PagedResponse<>(orderResponses,
                 page,size,orders.getTotalElements(),
@@ -126,7 +126,7 @@ public class OrderService {
 
     public PagedResponse<OrderResponse> getAllOrderByStatus(int page, int size, OrderStatus status){
         Pageable pageable = PageRequest.of(page,size, Sort.by("createdAt").descending());
-        Page<Order> orders = orderRepository.findAllByStatus(pageable,status);
+        Page<CurrentOrder> orders = orderRepository.findAllByStatus(pageable,status);
         List<OrderResponse> orderResponses =  orders.stream().map(this::returnOrderResponse).toList();
         return new PagedResponse<>(orderResponses,
                 page,size,orders.getTotalElements(),

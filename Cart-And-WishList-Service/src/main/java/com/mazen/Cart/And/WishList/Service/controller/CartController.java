@@ -18,26 +18,25 @@ public class CartController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN') OR principal == #cartRequest.user_id")
-    public void createCart(@RequestBody CartRequest cartRequest){
-        cartService.createCart(cartRequest);
+    public void createCartItem(@RequestBody CartRequest cartRequest){
+        cartService.createCartItem(cartRequest);
     }
 
-    @DeleteMapping("/{productId}/{userId}")
-    @PreAuthorize("hasRole('ADMIN') OR principal == #userId")
-    public void deleteCartProduct(@PathVariable String productId,@PathVariable String userId){
-        cartService.deleteCartProduct(productId,userId);
+    @DeleteMapping("/{cartId}")
+    public void deleteCartItem(@PathVariable long cartId){
+        cartService.deleteCartItem(cartId);
     }
 
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN') OR principal == #userId")
-    public void deleteAllProductInCart(@PathVariable String userId){
-        cartService.deleteAllProductInCart(userId);
+    public void deleteAllCartItems(@PathVariable String userId){
+        cartService.deleteAllCartItems(userId);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') OR principal == #cartRequest.user_id")
-    public void updateCart(@RequestBody CartRequest cartRequest,@PathVariable long id){
-        cartService.updateCart(cartRequest,id);
+    public void updateCartItem(@RequestBody CartRequest cartRequest,@PathVariable long id){
+        cartService.updateCartItem(cartRequest,id);
     }
 
     @GetMapping("/{userId}")
@@ -47,16 +46,14 @@ public class CartController {
         return cartService.getCartProducts(userId,authorization);
     }
 
-    @PatchMapping("/{productId}/{userId}/increase")
-    @PreAuthorize("hasRole('ADMIN') OR principal == #userId")
-    public void increaseNumberOfItems(@PathVariable String productId,@PathVariable String userId){
-        cartService.increaseNumberOfItems(productId,userId);
+    @PatchMapping("/{cartId}/increase")
+    public void increaseNumberOfItems(@PathVariable long cartId){
+        cartService.increaseNumberOfItems(cartId);
     }
 
-    @PatchMapping("/{productId}/{userId}/decrease")
-    @PreAuthorize("hasRole('ADMIN') OR principal == #userId")
-    public void decreaseNumberOfItems(String productId, String userId){
-        cartService.decreaseNumberOfItems(productId,userId);
+    @PatchMapping("/{cartId}/decrease")
+    public void decreaseNumberOfItems(@PathVariable long cartId){
+        cartService.decreaseNumberOfItems(cartId);
     }
 
 }

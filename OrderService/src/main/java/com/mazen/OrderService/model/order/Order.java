@@ -1,20 +1,21 @@
 package com.mazen.OrderService.model.order;
 
-
-import com.mazen.OrderService.model.*;
+import com.mazen.OrderService.model.BillingDetails;
+import com.mazen.OrderService.model.DateEntity;
+import com.mazen.OrderService.model.PaymentType;
+import com.mazen.OrderService.model.ProductItem;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
-@Entity
-@Table(name = "orders")
 @Builder
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class Order extends DateEntity {
+@AllArgsConstructor
+@MappedSuperclass
+public abstract class Order extends DateEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -26,13 +27,10 @@ public class Order extends DateEntity {
     @OneToMany(mappedBy = "order",cascade = CascadeType.PERSIST)
     private List<ProductItem> productItems;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "billing_details_id",referencedColumnName = "id")
-    private BillingDetails billingDetails;
-
     @Enumerated(value = EnumType.STRING)
     private PaymentType paymentType;
 
-    @Enumerated(value = EnumType.STRING)
-    private OrderStatus status;
+    @OneToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "billing_details_id",referencedColumnName = "id")
+    private BillingDetails billingDetails;
 }

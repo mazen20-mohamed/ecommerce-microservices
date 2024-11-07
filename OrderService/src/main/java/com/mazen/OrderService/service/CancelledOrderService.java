@@ -8,7 +8,7 @@ import com.mazen.OrderService.model.BillingDetails;
 import com.mazen.OrderService.model.ProductItem;
 import com.mazen.OrderService.model.OrderStatus;
 import com.mazen.OrderService.model.order.CanceledOrder;
-import com.mazen.OrderService.model.order.Order;
+import com.mazen.OrderService.model.order.CurrentOrder;
 import com.mazen.OrderService.repository.CancelledOrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class CancelledOrderService {
 
 
     public void changeOrderToCancel(String orderId,String reason){
-        Order order = orderService.getOrderByIdWithCheck(orderId);
+        CurrentOrder order = orderService.getOrderByIdWithCheck(orderId);
         if(!order.getStatus().equals(OrderStatus.Packing)){
             throw new BadRequestException("Cannot cancel order request is being shipped, please call us...");
         }

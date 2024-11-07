@@ -8,10 +8,12 @@
 		<version>3.3.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
+
+	<groupId>io.github.mazen20-mohamed</groupId>
 	<artifactId>JwtAuthority</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>JwtAuthority</name>
+
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>

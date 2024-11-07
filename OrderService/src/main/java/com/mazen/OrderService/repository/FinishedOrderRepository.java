@@ -1,7 +1,6 @@
 package com.mazen.OrderService.repository;
 
 import com.mazen.OrderService.model.order.FinishedOrder;
-import com.mazen.OrderService.model.order.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
