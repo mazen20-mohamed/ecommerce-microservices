@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
+import org.springframework.security.authorization.AuthorizationDeniedException;
 @ControllerAdvice
 public class ExceptionHandlerAdvice {
 
@@ -35,5 +35,10 @@ public class ExceptionHandlerAdvice {
 
         return new ResponseEntity<>(new ErrorResponse(status,e.getMessage()),status);
     }
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException exception) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;// 401
 
+        return new ResponseEntity<>(new ErrorResponse(status,exception.getMessage()),status);
+    }
 }

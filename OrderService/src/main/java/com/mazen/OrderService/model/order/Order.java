@@ -6,15 +6,18 @@ import com.mazen.OrderService.model.PaymentType;
 import com.mazen.OrderService.model.ProductItem;
 import jakarta.persistence.*;
 import lombok.*;
-
+import lombok.experimental.SuperBuilder;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@MappedSuperclass
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "order_type")
+@Entity
+@Table
 public abstract class Order extends DateEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

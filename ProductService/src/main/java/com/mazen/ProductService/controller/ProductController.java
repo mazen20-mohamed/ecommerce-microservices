@@ -34,6 +34,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void updateProduct(@Valid @ModelAttribute ProductUpdate productRequest,
                               @PathVariable String id,@RequestHeader("Authorization") String authorization){
         productService.updateProduct(id,productRequest,authorization);
@@ -42,16 +43,6 @@ public class ProductController {
     @GetMapping
     public List<ProductResponse> getProductsByIds(@RequestParam List<String> ids) {
         return productService.getProductsByIds(ids);
-    }
-
-    @GetMapping("/{product_id}/exists")
-    public boolean isProductExist(@PathVariable String product_id){
-        return productService.isProductExist(product_id);
-    }
-
-    @GetMapping("/exists")
-    public ResponseEntity<List<String>> isProductsExists(@RequestParam List<String> ids){
-        return ResponseEntity.ok(productService.isProductsExists(ids));
     }
 
     @GetMapping("/price")
@@ -68,6 +59,11 @@ public class ProductController {
     public PagedResponse<ProductResponse> getProductByCategory(@RequestParam ProductCategory category
             , @PathVariable int page, @PathVariable int size){
         return productService.getAllProductByCategory(category,page,size);
+    }
+
+    @GetMapping("all/{page}/{size}")
+    public PagedResponse<ProductResponse> getAllProduct(@PathVariable int page, @PathVariable int size){
+        return productService.getAllProduct(page,size);
     }
 
     @GetMapping("/random/{page}/{size}")

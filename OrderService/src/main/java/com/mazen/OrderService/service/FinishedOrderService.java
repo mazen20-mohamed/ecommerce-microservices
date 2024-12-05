@@ -45,14 +45,14 @@ public class FinishedOrderService {
 
         List<ProductItem> productItems =  order.getProductItems().stream().peek(productItem -> {
             productItem.setOrder(null);
-            productItem.setFinishedOrder(finishedOrder);
+            productItem.setOrder(finishedOrder);
         }).toList();
 
         finishedOrder.setProductItems(productItems);
         BillingDetails billingDetails = order.getBillingDetails();
 
 
-        billingDetails.setFinishedOrder(finishedOrder);
+        billingDetails.setOrder(finishedOrder);
         billingDetails.setOrder(null);
         finishedOrder.setBillingDetails(billingDetails);
 

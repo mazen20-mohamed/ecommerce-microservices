@@ -21,13 +21,13 @@ public interface FileServiceClient {
             @PathVariable Colors colors,
             @RequestHeader("Authorization") String authorization) throws IOException;
 
-    @PutMapping(value = "/{id}/{colors}", consumes = "multipart/form-data")
+    @PutMapping(value = "/v1/file/{id}/{colors}", consumes = "multipart/form-data")
     List<String> updatePhotos(@RequestPart("images") List<MultipartFile> images,
                                      @PathVariable String id,
                                      @PathVariable Colors colors,
                               @RequestHeader("Authorization") String authorization) throws IOException;
 
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/v1/file/{id}")
     ResponseEntity<Boolean> deletePhotos(@PathVariable String id,@RequestHeader("Authorization") String authorization);
 }

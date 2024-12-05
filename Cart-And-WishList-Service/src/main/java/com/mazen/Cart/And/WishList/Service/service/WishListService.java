@@ -2,7 +2,6 @@ package com.mazen.Cart.And.WishList.Service.service;
 
 import com.mazen.Cart.And.WishList.Service.dto.CartRequest;
 import com.mazen.Cart.And.WishList.Service.dto.ProductResponse;
-import com.mazen.Cart.And.WishList.Service.dto.WishListRequest;
 import com.mazen.Cart.And.WishList.Service.dto.WishlistResponse;
 import com.mazen.Cart.And.WishList.Service.exceptions.BadRequestException;
 import com.mazen.Cart.And.WishList.Service.exceptions.NotFoundException;
@@ -12,12 +11,8 @@ import com.mazen.Cart.And.WishList.Service.service.feignClient.ProductClient;
 import com.mazen.Cart.And.WishList.Service.service.feignClient.UserClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.*;
 
@@ -26,16 +21,9 @@ import java.util.*;
 @RequiredArgsConstructor
 public class WishListService {
     private final WishListRepository wishListRepository;
-    private final ModelMapper modelMapper;
     private final CartService cartService;
     private final UserClient userClient;
     private final ProductClient productClient;
-
-    private WishList findByProductIdAndUserId(String productId,String userId){
-        return wishListRepository.findByProductIdAndUserId
-                (productId,userId).orElseThrow(()->new
-                NotFoundException("Not found the product with id "+ productId));
-    }
 
     public WishList findByWishListId(long wishlistId){
         return wishListRepository.findById(wishlistId).orElseThrow(()->
@@ -43,18 +31,21 @@ public class WishListService {
     }
 
     @Transactional
-    public void createWishList(WishListRequest wishListRequest,String authorization){
-        WishList wishList = modelMapper.map(wishListRequest,WishList.class);
+    public void createWishList(String productId,String authorization,String userId){
+        WishList wishList = WishList.builder()
+                .product_id(productId)
+                .user_id(userId)
+                .build();
 
-       Optional<WishList> wishList1 = wishListRepository.findByProductIdAndUserId(wishListRequest.getProduct_id(),wishListRequest.getUser_id());
+       Optional<WishList> wishList1 = wishListRepository.findByProductIdAndUserId(productId,userId);
 
        if(wishList1.isPresent()){
            throw new BadRequestException("The product is already in the wishlist");
        }
 
         // check user id and product id
-        userClient.getUser(wishListRequest.getUser_id(),authorization);
-        productClient.getProductDetailsById(wishListRequest.getProduct_id(),authorization);
+        userClient.getUser(userId,authorization);
+        productClient.getProductDetailsById(productId,authorization);
 
         wishListRepository.save(wishList);
     }
@@ -66,13 +57,6 @@ public class WishListService {
         WishList wishList = findByWishListId(wishlistId);
 
         wishListRepository.delete(wishList);
-    }
-
-    @Transactional
-    public void updateWishList(WishListRequest wishListRequest, long id){
-        WishList wishList = findByWishListId(id);
-        modelMapper.map(wishListRequest,wishList);
-        wishListRepository.save(wishList);
     }
 
     public List<WishlistResponse> getWishListProducts(String userId, String authorization){
@@ -108,10 +92,9 @@ public class WishListService {
     public void moveToCart(long wishlistId){
         WishList wishList =  findByWishListId(wishlistId);
         cartService.createCartItem(CartRequest.builder()
-                .user_id(wishList.getUser_id())
                 .numberOfItems(1)
                 .product_id(wishList.getProduct_id())
-                .build());
+                .build(),wishList.getUser_id());
     }
 
 }

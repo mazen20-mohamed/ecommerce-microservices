@@ -13,6 +13,12 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>ProductService</name>
 	<description>product service project for Spring Boot</description>
+	<repositories>
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/mazen20-mohamed/Jwt_Authority_Tool</url>
+		</repository>
+	</repositories>
 	<url/>
 	<licenses>
 		<license/>
@@ -49,7 +55,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.example</groupId>
-			<artifactId>JwtAuthority</artifactId>
+			<artifactId>java-maven</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

@@ -14,6 +14,9 @@ public interface ProductRepository extends JpaRepository<Product,String> {
     @Query("select p from Product p where p.productCategory = :productCategory")
     Page<Product> getAllProductsByCategory(Pageable pageable, ProductCategory productCategory);
 
+    @Override
+    Page<Product> findAll(Pageable pageable);
+
     @Query("select p from Product p ORDER BY RAND()")
     Page<Product> getAllProductsRandom(Pageable pageable);
 }

@@ -14,10 +14,8 @@ public interface CurrentOrderRepository extends JpaRepository<CurrentOrder,Strin
     @Query("Select o from Order o Where o.user_id = :user_id")
     Optional<List<CurrentOrder>> getOrdersByUserId(String user_id);
 
-
     @Override
     Page<CurrentOrder> findAll(Pageable pageable);
-
 
     @Query("Select o from Order o Where o.status = :status")
     Page<CurrentOrder> findAllByStatus(Pageable pageable, OrderStatus status);

@@ -1,6 +1,4 @@
 package com.example.SaleService.service;
-
-
 import com.example.SaleService.exceptions.NotFoundException;
 import com.example.SaleService.model.ProductSale;
 import com.example.SaleService.repository.ProductSaleRepository;
@@ -38,15 +36,8 @@ public class ProductSaleService {
             productSaleRepository.save(productSale.get());
         }
 
-        try{
-            boolean isExists = productServiceClient.isProductExist(productId);
-            if(!isExists){
-                throw new NotFoundException("Not found product");
-            }
-        }
-        catch (FeignException ex){
-            log.error(ex.getLocalizedMessage());
-        }
+        // check if product extistes
+        productServiceClient.getProductById(productId);
 
         ProductSale productSale1 = ProductSale.builder()
                 .product_id(productId)

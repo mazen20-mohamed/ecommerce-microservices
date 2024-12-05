@@ -1,6 +1,7 @@
 package com.mazen.Cart.And.WishList.Service.controller;
 import com.mazen.Cart.And.WishList.Service.dto.CartRequest;
 import com.mazen.Cart.And.WishList.Service.dto.CartResponse;
+import com.mazen.Cart.And.WishList.Service.security.extractUserId.ExtractUserId;
 import com.mazen.Cart.And.WishList.Service.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,9 +18,8 @@ public class CartController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ADMIN') OR principal == #cartRequest.user_id")
-    public void createCartItem(@RequestBody CartRequest cartRequest){
-        cartService.createCartItem(cartRequest);
+    public void createCartItem(@RequestBody CartRequest cartRequest,@ExtractUserId String userId){
+        cartService.createCartItem(cartRequest,userId);
     }
 
     @DeleteMapping("/{cartId}")
@@ -27,21 +27,18 @@ public class CartController {
         cartService.deleteCartItem(cartId);
     }
 
-    @DeleteMapping("/{userId}")
-    @PreAuthorize("hasRole('ADMIN') OR principal == #userId")
-    public void deleteAllCartItems(@PathVariable String userId){
+    @DeleteMapping("/all")
+    public void deleteAllCartItems(@ExtractUserId String userId){
         cartService.deleteAllCartItems(userId);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') OR principal == #cartRequest.user_id")
     public void updateCartItem(@RequestBody CartRequest cartRequest,@PathVariable long id){
         cartService.updateCartItem(cartRequest,id);
     }
 
-    @GetMapping("/{userId}")
-    @PreAuthorize("hasRole('ADMIN') OR principal == #userId")
-    public List<CartResponse> getCartProducts(@PathVariable String userId
+    @GetMapping
+    public List<CartResponse> getCartProducts(@ExtractUserId String userId
             , @RequestHeader("Authorization") String authorization){
         return cartService.getCartProducts(userId,authorization);
     }

@@ -11,6 +11,8 @@ import com.example.ReviewService.model.Review;
 import com.example.ReviewService.model.ReviewId;
 import com.example.ReviewService.repository.ProductRateRepository;
 import com.example.ReviewService.repository.ReviewRepository;
+import com.example.ReviewService.service.feign.ProductClient;
+import com.example.ReviewService.service.feign.UserClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -27,7 +29,8 @@ public class ProductRateService {
     private final ProductRateRepository productRateRepository;
     private final ReviewRepository reviewRepository;
     private final ModelMapper modelMapper;
-    private final RestTemplateService restTemplateService;
+    private final UserClient userClient;
+    private final ProductClient productClient;
 
     public ProductRateDto getProductRate(String productId){
         Optional<ProductRate> productRate = productRateRepository.findById(productId);
@@ -50,8 +53,8 @@ public class ProductRateService {
             throw new BadRequestException("Review is already exists");
         }
 
-        restTemplateService.checkProduct(productRateRequest.getProduct_id());
-        restTemplateService.checkUser(productRateRequest.getUser_id());
+        productClient.getProductById(productRateRequest.getProduct_id());
+        userClient.getUserData(productRateRequest.getUser_id());
 
 
         ReviewId reviewId = new ReviewId(productRateRequest.getProduct_id(),
@@ -63,7 +66,7 @@ public class ProductRateService {
         Optional<ProductRate> productRate = productRateRepository.findById(productRateRequest.getProduct_id());
 
         if(productRate.isEmpty()){
-            log.info("product rate empty...");
+            log.info("product rate empty {} ...",productRateRequest.getProduct_id());
             ProductRate productRate1 =
                     ProductRate.builder()
                             .rate(productRateRequest.getRate())
@@ -73,7 +76,6 @@ public class ProductRateService {
             productRateRepository.save(productRate1);
             return;
         }
-        log.info("Product found");
         ProductRate productRate1 = productRate.get();
         double sumOfRate = productRate1.getRate()*productRate1.getNumberOfRates();
         sumOfRate+=productRateRequest.getRate();
@@ -82,6 +84,7 @@ public class ProductRateService {
         productRate1.setProduct_id(productRate1.getProduct_id());
         productRate1.setNumberOfRates(productRate1.getNumberOfRates()+1);
         productRateRepository.save(productRate1);
+        log.info("Product with id {} has updated the rate",productRateRequest.getProduct_id());
     }
 
 

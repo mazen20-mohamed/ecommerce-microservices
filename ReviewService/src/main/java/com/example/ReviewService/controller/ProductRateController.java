@@ -4,6 +4,7 @@ package com.example.ReviewService.controller;
 import com.example.ReviewService.dto.ProductRateDto;
 import com.example.ReviewService.dto.ProductRateRequest;
 import com.example.ReviewService.dto.ReviewDto;
+import com.example.ReviewService.security.extractUserId.ExtractUserId;
 import com.example.ReviewService.service.ProductRateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +30,8 @@ public class ProductRateController {
     }
 
 
-    @GetMapping("/{productId}/{userId}")
-    public ReviewDto getReviewOfUser(@PathVariable String productId,@PathVariable String userId){
+    @GetMapping("/{productId}/user")
+    public ReviewDto getReviewOfUser(@PathVariable String productId,@ExtractUserId String userId){
         return productRateService.getReviewOfUser(productId,userId);
     }
 

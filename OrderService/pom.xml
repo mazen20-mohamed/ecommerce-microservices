@@ -13,6 +13,12 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>OrderService</name>
 	<description>Demo project for Spring Boot</description>
+	<repositories>
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/mazen20-mohamed/Jwt_Authority_Tool</url>
+		</repository>
+	</repositories>
 	<url/>
 	<licenses>
 		<license/>
@@ -65,7 +71,10 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
@@ -81,7 +90,22 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>com.example</groupId>
+			<artifactId>java-maven</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+        <dependency>
+            <groupId>io.github.mazen20-mohamed</groupId>
+            <artifactId>JwtAuthority</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

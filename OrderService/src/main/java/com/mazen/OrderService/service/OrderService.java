@@ -6,6 +6,7 @@ import com.mazen.OrderService.kafka.OrderProducer;
 import com.mazen.OrderService.model.*;
 import com.mazen.OrderService.model.order.CurrentOrder;
 import com.mazen.OrderService.repository.CurrentOrderRepository;
+import com.mazen.OrderService.service.feign.ProductClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -25,8 +26,8 @@ import java.util.Optional;
 public class OrderService {
     private final CurrentOrderRepository orderRepository;
     private final ModelMapper modelMapper;
-    private final RestTemplateService restTemplateService;
     private final OrderProducer orderProducer;
+    private final ProductClient productClient;
 
     @Transactional
     public void createOrder(OrderRequest orderRequest){
@@ -34,11 +35,11 @@ public class OrderService {
         List<String> ids = orderRequest.getProductItems().stream()
                 .map(ProductRequest::getProduct_id).toList();
 
-        // check if product is exits
-        restTemplateService.isProductIdExits(ids);
+        // check if product is exits and get list of the products
+        List<ProductResponse> products = productClient.getProductsByIds(ids);
 
         // calculate order price
-        double orderPrice = restTemplateService.calculateOrderPrice(ids);
+        double orderPrice = products.stream().mapToDouble(ProductResponse::getPrice).sum();
 
         // Order Mapping
         CurrentOrder order = modelMapper.map(orderRequest, CurrentOrder.class);
@@ -51,7 +52,8 @@ public class OrderService {
                 productItem -> modelMapper.map(productItem, ProductItem.class)
         ).toList();
 
-        List<ProductItem> productItems1 =  productItems.stream().peek(productItem -> productItem.setOrder(order)).toList();
+        List<ProductItem> productItems1 =  productItems.stream().peek(productItem ->
+                productItem.setOrder(order)).toList();
 
         order.setProductItems(productItems1);
         order.setStatus(OrderStatus.Packing);

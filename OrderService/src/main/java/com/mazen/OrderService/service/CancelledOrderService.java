@@ -1,6 +1,5 @@
 package com.mazen.OrderService.service;
 
-
 import com.mazen.OrderService.dto.CancelOrderResponse;
 import com.mazen.OrderService.exceptions.BadRequestException;
 import com.mazen.OrderService.exceptions.NotFoundException;
@@ -28,30 +27,21 @@ public class CancelledOrderService {
 
 
     public void changeOrderToCancel(String orderId,String reason){
+
         CurrentOrder order = orderService.getOrderByIdWithCheck(orderId);
-        if(!order.getStatus().equals(OrderStatus.Packing)){
-            throw new BadRequestException("Cannot cancel order request is being shipped, please call us...");
+
+        if(order.getStatus().equals(OrderStatus.Delivery)){
+            throw new BadRequestException("Cannot cancel order request is being shipped, please contact us...");
         }
 
         CanceledOrder canceledOrder = CanceledOrder.builder()
                 .paymentType(order.getPaymentType())
                 .totalPrice(order.getTotalPrice())
                 .user_id(order.getUser_id())
-                .descriptionOfCancel(reason)
+                .reasonOfCancel(reason)
+                .productItems(order.getProductItems())
+                .billingDetails(order.getBillingDetails())
                 .build();
-
-        List<ProductItem> productItems =  order.getProductItems().stream().peek(productItem -> {
-            productItem.setOrder(null);
-            productItem.setCanceledOrder(canceledOrder);
-        }).toList();
-
-        canceledOrder.setProductItems(productItems);
-        BillingDetails billingDetails = order.getBillingDetails();
-
-
-        billingDetails.setCanceledOrder(canceledOrder);
-        billingDetails.setOrder(null);
-        canceledOrder.setBillingDetails(billingDetails);
 
         orderService.deleteOrder(orderId);
         cancelledOrderRepository.save(canceledOrder);

@@ -2,7 +2,6 @@ package com.mazen.ProductService.service;
 import com.mazen.ProductService.dto.ProductDetailsResponse;
 import com.mazen.ProductService.dto.ProductResponse;
 import com.mazen.ProductService.dto.request.post.ProductRequest;
-import com.mazen.ProductService.dto.request.update.ProductSpecsUpdate;
 import com.mazen.ProductService.dto.request.update.ProductUpdate;
 import com.mazen.ProductService.exceptions.BadRequestException;
 import com.mazen.ProductService.exceptions.NotFoundException;
@@ -11,7 +10,6 @@ import com.mazen.ProductService.model.ProductCategory;
 import com.mazen.ProductService.model.ProductImage;
 import com.mazen.ProductService.model.ProductSpecs;
 import com.mazen.ProductService.repository.ProductCategoryRepository;
-import com.mazen.ProductService.repository.ProductImageRepository;
 import com.mazen.ProductService.repository.ProductSpecsRepository;
 import com.mazen.ProductService.repository.ProductRepository;
 import com.mazen.ProductService.service.feignClient.FileServiceClient;
@@ -25,15 +23,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -302,4 +297,13 @@ public class ProductService {
          return sum;
     }
 
+    public PagedResponse<ProductResponse> getAllProduct(int page, int size) {
+        Pageable pageable = PageRequest.of(page,size, Sort.by("createdAt").descending());
+        Page<Product> products= productRepository.findAll(pageable);
+        List<ProductResponse> productResponses = products
+                .map(mappingService::createProductResponse).toList();
+        return new PagedResponse<>(productResponses,
+                page,size,products.getTotalElements(),
+                products.getTotalPages(),products.isLast());
+    }
 }

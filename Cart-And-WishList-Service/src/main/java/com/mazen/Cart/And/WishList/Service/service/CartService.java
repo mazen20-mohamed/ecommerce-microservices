@@ -32,8 +32,9 @@ public class CartService {
     }
 
     @Transactional
-    public void createCartItem(CartRequest cartRequest){
+    public void createCartItem(CartRequest cartRequest,String userId){
         Cart cart = modelMapper.map(cartRequest,Cart.class);
+        cart.setUser_id(userId);
         cartRepository.save(cart);
     }
 
@@ -66,7 +67,8 @@ public class CartService {
             return List.of();
         }
 
-        List<String> productIds = cart.get().stream().map(Cart::getProduct_id).toList();
+        List<String> productIds = cart.get().stream()
+                .map(Cart::getProduct_id).toList();
 
         List<ProductResponse> productResponses =  productClient.getProductsByIds(productIds,authorization);
 

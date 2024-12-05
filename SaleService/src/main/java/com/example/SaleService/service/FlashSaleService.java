@@ -107,5 +107,4 @@ public class FlashSaleService {
         return mapFlashSale(flashSale);
     }
 
-
 }

@@ -14,6 +14,12 @@
 	<name>PhoneService</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
+	<repositories>
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/mazen20-mohamed/Jwt_Authority_Tool</url>
+		</repository>
+	</repositories>
 	<licenses>
 		<license/>
 	</licenses>
@@ -72,6 +78,17 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.example</groupId>
+			<artifactId>java-maven</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.mazen20-mohamed</groupId>
+			<artifactId>JwtAuthority</artifactId>
+			<version>1.0.0</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>

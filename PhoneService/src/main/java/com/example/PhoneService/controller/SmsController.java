@@ -4,6 +4,7 @@ package com.example.PhoneService.controller;
 import com.example.PhoneService.service.OTPService;
 import com.example.PhoneService.service.SMSService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,6 +15,7 @@ public class SmsController {
     private final OTPService otpService;
 
     @PostMapping("/send")
+    @PreAuthorize("hasRole('ADMIN')")
     public String sendSMS(@RequestParam String toNumber, @RequestParam String message) {
         service.sendSMS(toNumber, message);
         return "SMS sent to " + toNumber;

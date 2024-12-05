@@ -2,6 +2,7 @@ package com.mazen.OrderService.model;
 import com.mazen.OrderService.model.order.CanceledOrder;
 import com.mazen.OrderService.model.order.FinishedOrder;
 import com.mazen.OrderService.model.order.CurrentOrder;
+import com.mazen.OrderService.model.order.Order;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,14 +26,6 @@ public class ProductItem {
 
     @ManyToOne
     @JoinColumn(name = "order_id",referencedColumnName = "id")
-    private CurrentOrder order;
-
-    @ManyToOne
-    @JoinColumn(name = "finished_Order_id",referencedColumnName = "id")
-    private FinishedOrder finishedOrder;
-
-    @ManyToOne
-    @JoinColumn(name = "cancel_Order_id",referencedColumnName = "id")
-    private CanceledOrder canceledOrder;
+    private Order order;
 
 }
