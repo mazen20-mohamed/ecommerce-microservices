@@ -60,8 +60,8 @@ public class CartService {
         cartRepository.save(cart);
     }
 
-    public List<CartResponse> getCartProducts(String user_id, String authorization){
-        Optional<List<Cart>> cart = cartRepository.findByUserId(user_id);
+    public List<CartResponse> getCartByUserId(String userId, String authorization){
+        Optional<List<Cart>> cart = cartRepository.findByUserId(userId);
 
         if(cart.isEmpty()){
             return List.of();

@@ -3,7 +3,7 @@ package com.mazen.OrderService.service;
 import com.mazen.OrderService.dto.DetailsShippingResponse;
 import com.mazen.OrderService.dto.UserResponseDTO;
 import com.mazen.OrderService.exceptions.NotFoundException;
-import com.mazen.OrderService.model.BillingDetails;
+import com.mazen.OrderService.model.order.BillingDetails;
 import com.mazen.OrderService.repository.BillingDetailsRepository;
 import com.mazen.OrderService.service.feign.UserClient;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class BillingDetailsService {
 
     public DetailsShippingResponse getShippingDetailsById(long id){
         BillingDetails billingDetails = getBillingDetailsById(id);
-        UserResponseDTO userResponseDTO = userClient.getUserData(billingDetails.getOrder().getUser_id());
+        UserResponseDTO userResponseDTO = userClient.getUserData(billingDetails.getOrder().getUserId());
         DetailsShippingResponse detailsShippingResponse =modelMapper.map(billingDetails,DetailsShippingResponse.class);
         detailsShippingResponse.setUserName(userResponseDTO.getFirstName() + " "+userResponseDTO.getLastName());
         return detailsShippingResponse;

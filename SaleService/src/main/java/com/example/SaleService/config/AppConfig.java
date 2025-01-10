@@ -1,6 +1,8 @@
 package com.example.SaleService.config;
 
 
+import com.example.SaleService.exceptions.FeignErrorDecoder;
+import feign.codec.ErrorDecoder;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,4 +36,8 @@ public class AppConfig {
         };
     }
 
+    @Bean
+    public ErrorDecoder errorDecoder() {
+        return new FeignErrorDecoder();
+    }
 }

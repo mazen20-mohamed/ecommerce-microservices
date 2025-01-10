@@ -16,7 +16,7 @@ public interface FileServiceClient {
     @PostMapping(value = "/v1/file/{id}/{colors}", consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
     List<String> addPhotosToProduct(
-            @RequestPart("images") List<MultipartFile> images,
+            @RequestPart("images") List<MultipartFile> files,
             @PathVariable String id,
             @PathVariable Colors colors,
             @RequestHeader("Authorization") String authorization) throws IOException;
@@ -27,7 +27,4 @@ public interface FileServiceClient {
                                      @PathVariable Colors colors,
                               @RequestHeader("Authorization") String authorization) throws IOException;
 
-
-    @DeleteMapping("/v1/file/{id}")
-    ResponseEntity<Boolean> deletePhotos(@PathVariable String id,@RequestHeader("Authorization") String authorization);
 }

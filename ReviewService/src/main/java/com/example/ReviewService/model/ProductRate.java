@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductRate {
     @Id
-    private String product_id;
+    private String productId;
 
     private double rate;
 

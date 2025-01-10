@@ -1,5 +1,5 @@
 server:
-  port: 8500
+  port: ${PORT:0}
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/ecommerce_order
@@ -20,3 +20,11 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.type.mapping: orderConfirmation:com.mazen.OrderService.dto.OrderConfirmation
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: productGroup
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'

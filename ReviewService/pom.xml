@@ -83,6 +83,15 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>io.github.mazen20-mohamed</groupId>
 			<artifactId>JwtAuthority</artifactId>
 			<version>1.0.0</version>
@@ -97,6 +106,11 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-openfeign-core</artifactId>
 			<version>4.1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-slf4j</artifactId>
+			<version>12.4</version> <!-- Use a version compatible with your Feign and Spring setup -->
 		</dependency>
 	</dependencies>
 	<dependencyManagement>

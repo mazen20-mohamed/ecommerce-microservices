@@ -14,6 +14,7 @@ public class ProductResponse {
     private String id;
     private String title;
     private double price;
-    private int discount;
+    private double priceAfterDiscount;
+    private String productCategory;
     private String imageUrl;
 }

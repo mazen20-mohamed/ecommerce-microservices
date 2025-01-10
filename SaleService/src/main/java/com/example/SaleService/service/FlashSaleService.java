@@ -44,11 +44,8 @@ public class FlashSaleService {
     public void createFlashSale(FlashSaleRequest flashSaleRequest){
 
         try{
-             List<String> ids =  productServiceClient.isProductsExists(flashSaleRequest.
+             productServiceClient.getProductsByIds(flashSaleRequest.
                      getProductSaleDTOS().stream().map(ProductSaleDTO::getProductId).toList());
-             if(!ids.isEmpty()){
-                 throw new NotFoundException("Products with ids not found "+ids);
-             }
         }
         catch (FeignException ex){
             log.error(ex.getLocalizedMessage());

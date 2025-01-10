@@ -29,8 +29,8 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteProduct(@PathVariable String id,@RequestHeader("Authorization") String authorization){
-        productService.deleteProduct(id,authorization);
+    public void deleteProduct(@PathVariable String id){
+        productService.deleteProduct(id);
     }
 
     @PutMapping("/{id}")
@@ -41,35 +41,30 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductResponse> getProductsByIds(@RequestParam List<String> ids) {
-        return productService.getProductsByIds(ids);
-    }
-
-    @GetMapping("/price")
-    public double getPriceOfAllProducts(@RequestParam List<String> ids){
-        return productService.getPriceOfAllProducts(ids);
+    public List<ProductResponse> getProductsByIds(@RequestParam List<String> ids,@RequestHeader("Authorization") String authorization) {
+        return productService.getProductsByIds(ids,authorization);
     }
 
     @GetMapping("/{id}")
-    public ProductDetailsResponse getProductDetailsById(@PathVariable String id){
-        return productService.getProductDetailsById(id);
+    public ProductDetailsResponse getProductDetailsById(@PathVariable String id,@RequestHeader("Authorization")String authorization){
+        return productService.getProductDetailsById(id,authorization);
     }
 
     @GetMapping("/{page}/{size}")
     public PagedResponse<ProductResponse> getProductByCategory(@RequestParam ProductCategory category
-            , @PathVariable int page, @PathVariable int size){
-        return productService.getAllProductByCategory(category,page,size);
+            , @PathVariable int page, @PathVariable int size,@RequestHeader("Authorization") String authorization){
+        return productService.getAllProductByCategory(category,page,size,authorization);
     }
 
     @GetMapping("all/{page}/{size}")
-    public PagedResponse<ProductResponse> getAllProduct(@PathVariable int page, @PathVariable int size){
-        return productService.getAllProduct(page,size);
+    public PagedResponse<ProductResponse> getAllProduct(@PathVariable int page, @PathVariable int size,@RequestHeader("Authorization") String authorization){
+        return productService.getAllProduct(page,size,authorization);
     }
 
     @GetMapping("/random/{page}/{size}")
     public PagedResponse<ProductResponse> getAllProductsRandom(@PathVariable int page ,
-                                                               @PathVariable int size){
-        return productService.getAllProductsRandom(page,size);
+                                                               @PathVariable int size,@RequestHeader("Authorization") String authorization){
+        return productService.getAllProductsRandom(page,size,authorization);
     }
 
 }

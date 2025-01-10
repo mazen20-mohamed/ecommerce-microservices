@@ -12,24 +12,23 @@ import com.example.ReviewService.model.ReviewId;
 import com.example.ReviewService.repository.ProductRateRepository;
 import com.example.ReviewService.repository.ReviewRepository;
 import com.example.ReviewService.service.feign.ProductClient;
-import com.example.ReviewService.service.feign.UserClient;
+import com.example.ReviewService.service.feign.AuthServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
-@RestController
-@RequestMapping(path = "/v1/rate")
+@Service
 @RequiredArgsConstructor
 @Slf4j
-public class ProductRateService {
+public class ProductRateService implements IProductRateService{
     private final ProductRateRepository productRateRepository;
     private final ReviewRepository reviewRepository;
     private final ModelMapper modelMapper;
-    private final UserClient userClient;
+    private final AuthServer userClient;
     private final ProductClient productClient;
 
     public ProductRateDto getProductRate(String productId){
@@ -46,6 +45,7 @@ public class ProductRateService {
                 .build();
     }
 
+    @Override
     public void addReviewForProduct(ProductRateRequest productRateRequest){
         Optional<Review> review = reviewRepository.findReview(productRateRequest.getProduct_id(),productRateRequest.getUser_id());
 
@@ -71,7 +71,7 @@ public class ProductRateService {
                     ProductRate.builder()
                             .rate(productRateRequest.getRate())
                             .numberOfRates(1)
-                            .product_id(productRateRequest.getProduct_id())
+                            .productId(productRateRequest.getProduct_id())
                             .build();
             productRateRepository.save(productRate1);
             return;
@@ -81,13 +81,14 @@ public class ProductRateService {
         sumOfRate+=productRateRequest.getRate();
         double newRate = (sumOfRate/(productRate1.getNumberOfRates()+1));
         productRate1.setRate(newRate);
-        productRate1.setProduct_id(productRate1.getProduct_id());
+        productRate1.setProductId(productRate1.getProductId());
         productRate1.setNumberOfRates(productRate1.getNumberOfRates()+1);
         productRateRepository.save(productRate1);
         log.info("Product with id {} has updated the rate",productRateRequest.getProduct_id());
     }
 
 
+    @Override
     public ReviewDto getReviewOfUser(String productId,String userId){
         Review review = reviewRepository.findReview(productId,userId)
                 .orElseThrow(()->new NotFoundException("Not found review"));
@@ -98,6 +99,8 @@ public class ProductRateService {
                 .build();
     }
 
+
+    @Override
     public List<ReviewDto> getAllReviewOfProduct(String productId){
          Optional<List<Review>> reviews = reviewRepository.findReviewsOfProduct(productId);
         return reviews.map(reviewList -> reviewList.stream().map(review -> ReviewDto.builder()
@@ -106,4 +109,5 @@ public class ProductRateService {
                 .comment(review.getComment())
                 .build()).toList()).orElseGet(List::of);
     }
+
 }

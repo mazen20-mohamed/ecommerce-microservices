@@ -1,6 +1,10 @@
 package com.example.ReviewService.config;
 
 
+import com.example.ReviewService.exceptions.FeignErrorDecoder;
+import feign.Logger;
+import feign.codec.ErrorDecoder;
+import feign.slf4j.Slf4jLogger;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,5 +37,16 @@ public class AppConfig {
             }
         };
     }
-
+    @Bean
+    public Logger feignLogger() {
+        return new Slf4jLogger();
+    }
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
+    }
+    @Bean
+    public ErrorDecoder errorDecoder() {
+        return new FeignErrorDecoder();
+    }
 }

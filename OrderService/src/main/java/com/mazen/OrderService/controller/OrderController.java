@@ -4,54 +4,68 @@ import com.mazen.OrderService.dto.OrderRequest;
 import com.mazen.OrderService.dto.OrderResponse;
 import com.mazen.OrderService.dto.PagedResponse;
 import com.mazen.OrderService.model.OrderStatus;
+import com.mazen.OrderService.security.extractUserId.ExtractUserId;
 import com.mazen.OrderService.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/v1/order")
+@RequestMapping(path = "/v1/orders")
 public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public void setOrder(@RequestBody OrderRequest orderRequest){
-        orderService.createOrder(orderRequest);
+    public void createOrder(@RequestBody OrderRequest orderRequest, @ExtractUserId String userId,
+                            @RequestHeader("Authorization") String authorization){
+        orderRequest.setUserId(userId);
+        orderService.createOrder(orderRequest,authorization);
     }
-
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponse> getOrderById(@PathVariable String id){
-        return ResponseEntity.ok(orderService.getOrderById(id));
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable String id
+            ,@RequestParam(required = false) OrderStatus orderStatus){
+        if(orderStatus == (null)){
+            return ResponseEntity.ok(orderService.getOrderById(id));
+        }
+        return ResponseEntity.ok(orderService.getOrderByIdAndStatus(id,orderStatus));
     }
 
-    @PatchMapping("/{orderId}")
-        public void changeStatusOfOrder(@RequestParam OrderStatus status
-            ,@PathVariable String orderId){
-        orderService.changeStatusOfOrder(status,orderId);
+    @GetMapping("/{page}/{size}")
+    public PagedResponse<OrderResponse> getAllOrders(@PathVariable int page, @PathVariable int size,
+                                                     @RequestParam(required = false) OrderStatus status){
+        if(status == (null)){
+            return orderService.getAllOrders(page,size);
+        }
+        return orderService.getAllOrderByStatus(page,size,status);
     }
 
-    @DeleteMapping("/{orderId}")
-    public void deleteOrder(@PathVariable String orderId){
-        orderService.deleteOrder(orderId);
-    }
-
-
-    @GetMapping("/all/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<List<OrderResponse>> getOrderByUserId(@PathVariable String userId){
         return ResponseEntity.ok(orderService.getOrderByUserId(userId));
     }
 
-    @GetMapping("/all/{page}/{size}")
-    public ResponseEntity<PagedResponse<OrderResponse>> getAllOrders(@PathVariable int page, @PathVariable int size){
-        return ResponseEntity.ok(orderService.getAllOrders(page,size));
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void changeStatusOfOrder(@RequestParam OrderStatus status
+            ,@PathVariable String id){
+        orderService.changeStatusOfOrder(status,id);
     }
 
-    @GetMapping("/all/{page}/{size}/{status}")
-    public PagedResponse<OrderResponse> getAllOrderByStatus(@PathVariable int page,@PathVariable int size,@PathVariable OrderStatus status){
-        return orderService.getAllOrderByStatus(page,size,status);
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteOrder(@PathVariable String id){
+        orderService.deleteOrder(id);
     }
+
+    @GetMapping("product/{productId}")
+    public List<OrderResponse> getOrdersByProductId(@PathVariable String productId ,
+                                                    @RequestParam(required = false) List<OrderStatus> orderStatus){
+        return orderService.getOrdersByProductId(productId,orderStatus);
+    }
+
 }

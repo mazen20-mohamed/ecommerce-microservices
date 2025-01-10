@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderRequest {
-    private String user_id;
+    private String userId;
     private List<ProductRequest> productItems;
     private DetailsRequest detailsRequest;
     private PaymentType paymentType;

@@ -9,9 +9,9 @@ import java.util.List;
 @FeignClient(name = "ProductService")
 public interface ProductServiceClient {
 
-    @GetMapping("/{productId}")
+    @GetMapping("/v1/products/{productId}")
     void getProductById(@PathVariable String productId);
 
-    @GetMapping("/exists")
-    List<String> isProductsExists(@RequestParam List<String> ids);
+    @GetMapping("/v1/products")
+    void getProductsByIds (@RequestParam List<String> ids);
 }

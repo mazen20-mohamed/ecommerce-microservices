@@ -49,6 +49,7 @@ public class FileStorageService {
                 .map(serviceInstance -> serviceInstance.getUri().toString())
                 .orElseThrow(() -> new RuntimeException("Gateway not found"));
 
+        log.info("Adding images to product with id {}",id);
         for(MultipartFile f : files){
 
             String fileDownloadUri = UriComponentsBuilder

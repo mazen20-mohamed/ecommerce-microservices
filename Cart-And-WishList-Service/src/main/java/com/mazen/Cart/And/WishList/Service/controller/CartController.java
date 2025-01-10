@@ -38,9 +38,9 @@ public class CartController {
     }
 
     @GetMapping
-    public List<CartResponse> getCartProducts(@ExtractUserId String userId
+    public List<CartResponse> getCartByUserId(@ExtractUserId String userId
             , @RequestHeader("Authorization") String authorization){
-        return cartService.getCartProducts(userId,authorization);
+        return cartService.getCartByUserId(userId,authorization);
     }
 
     @PatchMapping("/{cartId}/increase")

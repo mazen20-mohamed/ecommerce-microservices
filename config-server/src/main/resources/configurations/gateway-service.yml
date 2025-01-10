@@ -27,9 +27,6 @@ spring:
           uri: lb://FileStorage
           predicates:
             - Path=/v1/file/**
-            - Header=Authorization, Bearer (.*)
-          filters:
-            - AuthenticationFilter
         - id: wishlist_service
           uri: lb://Cart-And-WishList-Service
           predicates:
@@ -41,6 +38,13 @@ spring:
           uri: lb://Cart-And-WishList-Service
           predicates:
             - Path=/v1/cart/**
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - AuthenticationFilter
+        - id: order_service
+          uri: lb://OrderService
+          predicates:
+            - Path=/v1/orders/**
             - Header=Authorization, Bearer (.*)
           filters:
             - AuthenticationFilter

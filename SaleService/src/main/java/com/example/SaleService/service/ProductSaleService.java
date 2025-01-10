@@ -46,4 +46,9 @@ public class ProductSaleService {
         productSaleRepository.save(productSale1);
     }
 
+    public void deleteProduct(String productId){
+        Optional<ProductSale> productSale =  productSaleRepository.findById(productId);
+        productSale.ifPresent(productSaleRepository::delete);
+    }
+
 }

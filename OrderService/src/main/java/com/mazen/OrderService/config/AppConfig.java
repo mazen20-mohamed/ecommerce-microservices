@@ -1,5 +1,7 @@
 package com.mazen.OrderService.config;
 
+import com.mazen.OrderService.exceptions.FeignErrorDecoder;
+import feign.codec.ErrorDecoder;
 import org.modelmapper.ModelMapper;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +35,10 @@ public class AppConfig {
                         .allowCredentials(true);
             }
         };
+    }
+    @Bean
+    public ErrorDecoder errorDecoder() {
+        return new FeignErrorDecoder();
     }
 
 }

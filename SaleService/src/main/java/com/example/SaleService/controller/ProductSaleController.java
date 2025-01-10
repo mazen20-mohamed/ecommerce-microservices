@@ -2,6 +2,7 @@ package com.example.SaleService.controller;
 
 import com.example.SaleService.service.ProductSaleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -12,6 +13,7 @@ public class ProductSaleController {
     private final ProductSaleService productSaleService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public void makeDiscountOfProduct(@RequestParam String productId,
                                       @RequestParam int discount){
         productSaleService.makeDiscountOfProduct(productId,discount);
@@ -26,6 +28,5 @@ public class ProductSaleController {
     public List<Integer> getProductsDiscountByIds(@RequestParam List<String> ids){
         return productSaleService.getProductsDiscountByIds(ids);
     }
-
 
 }

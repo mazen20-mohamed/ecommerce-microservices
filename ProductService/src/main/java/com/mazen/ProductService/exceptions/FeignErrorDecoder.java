@@ -26,6 +26,7 @@ public class FeignErrorDecoder implements ErrorDecoder {
             case 400 -> new BadRequestException(message);
             case 404 -> new NotFoundException(message);
             case 403 -> new UnAuthorizeException(message);
+            case 500 -> new ServerErrorException(message);
             default -> {
                 log.error("Server error in feign client: {}",message);
                 yield null;

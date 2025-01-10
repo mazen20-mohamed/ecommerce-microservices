@@ -43,14 +43,8 @@ public class MappingService {
 
 
     // calculate price after discount
-    public double getPriceAfterDiscount(String productId , double price){
-        int discount =0;
-        try{
-            discount = saleServiceClient.getProductDiscountById(productId);
-        }
-        catch (FeignException ex){
-            log.error(ex.getLocalizedMessage());
-        }
+    public double getPriceAfterDiscount(String productId , double price,String authorization){
+        int discount = saleServiceClient.getProductDiscountById(productId,authorization);
         return (price*discount)/100.0;
     }
 
@@ -70,20 +64,12 @@ public class MappingService {
 
         productImage.setProduct(product);
 
-        List<String> images = new ArrayList<>();
-
-        try{
-            images =  fileServiceClient.addPhotosToProduct(
-                    productImageRequest.getImages(),
-                    product.getId(),
-                    productImageRequest.getColors(),
-                    authorization);
-        }
-        catch (FeignException ex){
-            if(ex.status()==500){
-                log.error("Error with ");
-            }
-        }
+        log.info("images list size is {}",productImageRequest.getImages().size());
+        List<String> images = fileServiceClient.addPhotosToProduct(
+                productImageRequest.getImages(),
+                product.getId(),
+                productImageRequest.getColors(),
+                authorization);
 
         productImage.setImagesPaths(images);
         productImageRepository.save(productImage);
@@ -106,7 +92,7 @@ public class MappingService {
         return productSpecsResponse;
     }
 
-    public ProductDetailsResponse createProductDetailsResponse(Product product){
+    public ProductDetailsResponse createProductDetailsResponse(Product product,String authorization){
         ProductDetailsResponse productDetailsResponse =
                 modelMapper.map(product,ProductDetailsResponse.class);
 
@@ -123,14 +109,14 @@ public class MappingService {
                         productSpecsResponses.add(productSpecsResponse);
                     }
         });
-        productDetailsResponse.setPriceAfterDiscount(getPriceAfterDiscount(product.getId(),product.getPrice()));
+        productDetailsResponse.setPriceAfterDiscount(getPriceAfterDiscount(product.getId(),product.getPrice(),authorization));
         productDetailsResponse.setProductSpecsResponses(productSpecsResponses);
         return productDetailsResponse;
     }
 
 
     // create product response
-    public ProductResponse createProductResponse(Product product){
+    public ProductResponse createProductResponse(Product product,String authorization){
 
         ProductResponse productResponse = modelMapper.map(product,ProductResponse.class);
 
@@ -144,7 +130,7 @@ public class MappingService {
             }
         }
         productResponse.setImageUrl(image);
-        productResponse.setPriceAfterDiscount(getPriceAfterDiscount(product.getId(),product.getPrice()));
+        productResponse.setPriceAfterDiscount(getPriceAfterDiscount(product.getId(),product.getPrice(),authorization));
         return productResponse;
     }
 }

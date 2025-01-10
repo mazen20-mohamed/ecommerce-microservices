@@ -7,6 +7,7 @@ import com.example.SaleService.dto.PagedResponse;
 import com.example.SaleService.repository.FlashSaleRepository;
 import com.example.SaleService.service.FlashSaleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,6 +18,7 @@ public class FlashSaleController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public void createFlashSale(FlashSaleRequest flashSaleRequest){
         flashSaleService.createFlashSale(flashSaleRequest);
     }
@@ -33,6 +35,7 @@ public class FlashSaleController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteFlashSale(@PathVariable long id){
         flashSaleService.deleteFlashSale(id);
     }
